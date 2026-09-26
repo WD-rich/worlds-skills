@@ -54,6 +54,8 @@ worlds-skills/
 └── tests/        # 契约、迁移、回放和内核测试（后续实现）
 ```
 
+生成的世界、运行日志和查看器属于调用方的工作区，不放进这个 Skill 仓库。当前示例工作区位于 `/Users/wd/new_world/neo_world`。
+
 ## 文档入口
 
 - [架构说明](docs/architecture.md)
