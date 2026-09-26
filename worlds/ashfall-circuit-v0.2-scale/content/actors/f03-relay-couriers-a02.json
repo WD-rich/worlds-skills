@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "0.2",
+  "id": "f03-relay-couriers-a02",
+  "name": "秦炽",
+  "callsign": "脉冲",
+  "factionId": "f03-relay-couriers",
+  "factionName": "回路信使",
+  "role": "specialist",
+  "homeSpaceId": "r01-core-01",
+  "profile": {
+    "premise": "秦炽在回路信使中承担specialist，面对的是具体资源而不是抽象阵营。",
+    "values": [
+      "relay-runners",
+      "leverage",
+      "survival"
+    ],
+    "goals": [
+      "让回路信使在下一次资源收紧中保住选择权",
+      "追查一条能改变回路信使处境的旧系统线索"
+    ],
+    "constraints": [
+      "不能绕过所属群体的资源账本",
+      "无法独自改变城市级规则"
+    ],
+    "capabilities": [
+      "relay-runners-work",
+      "basic-trade",
+      "short-signal"
+    ],
+    "secret": "秦炽知道一条尚未验证的回路信使旧记录"
+  },
+  "state": {
+    "locationId": "r06-static-03",
+    "condition": "stable",
+    "needs": {
+      "water": 54,
+      "energy": 48,
+      "heat": 30,
+      "trust": 48,
+      "signal": 42
+    },
+    "activity": "holding-position",
+    "inventory": [
+      "relay-runners-token-2",
+      "water-ticket"
+    ],
+    "available": true,
+    "memoryIds": []
+  }
+}

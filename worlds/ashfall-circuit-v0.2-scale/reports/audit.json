@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "0.2",
+  "workspaceId": "ashfall-circuit-v0.2-scale",
+  "status": "ok",
+  "counts": {
+    "regions": 10,
+    "spaces": 60,
+    "actors": 40,
+    "relations": 96,
+    "ticks": 50,
+    "snapshots": 6
+  },
+  "replayHash": "0d9238e9f4ae682297cb268a460da266605d9b655cfbef8f7e5cfd4fe6ee81f5",
+  "checks": [
+    {
+      "code": "SCALE_COUNTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "10 regions, 60 spaces, 40 actors, 50 ticks, 6 snapshots."
+    },
+    {
+      "code": "SPACE_GRAPH_CONNECTED",
+      "severity": "info",
+      "status": "pass",
+      "message": "每区六节点环路加跨区主节点环，邻接双向且全局连通。"
+    },
+    {
+      "code": "ACTOR_REFERENCES",
+      "severity": "info",
+      "status": "pass",
+      "message": "40 个角色都有 faction、homeSpace、capabilities 和 inventory。"
+    },
+    {
+      "code": "RELATION_GRAPH",
+      "severity": "info",
+      "status": "pass",
+      "message": "96 条有向关系边全部引用现有角色。"
+    },
+    {
+      "code": "RESOURCE_BOUNDS",
+      "severity": "info",
+      "status": "pass",
+      "message": "50 个时间步资源保持非负。"
+    },
+    {
+      "code": "EVENT_SEQUENCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "rec-000 到 rec-050 连续，事件包含 phase、before/after、seed 和 drawIndex。"
+    },
+    {
+      "code": "REPLAY_HASH",
+      "severity": "info",
+      "status": "pass",
+      "message": "扩展状态具有固定回放哈希。",
+      "replayHash": "0d9238e9f4ae682297cb268a460da266605d9b655cfbef8f7e5cfd4fe6ee81f5"
+    }
+  ],
+  "diagnostics": [],
+  "artifacts": [
+    {
+      "path": "content/setting.json",
+      "kind": "world-seed",
+      "sha256": "3a89f27f47a1eb4167a34fa8ee060dd2b3f391c12f783e5a7142157526f645d9"
+    },
+    {
+      "path": "content/spaces.json",
+      "kind": "space-graph",
+      "sha256": "8b96601be09282802c82cb19fb15f9dcd2833c770a71ec868fea72dc9ad2cc15"
+    },
+    {
+      "path": "content/relationships.json",
+      "kind": "relationship-graph",
+      "sha256": "ddca325fde98cea588ab69cc3e6ebe0d6f7a55c50e55843a633fb874f0158e45"
+    },
+    {
+      "path": "runtime/records.ndjson",
+      "kind": "event-log",
+      "sha256": "c71fb784a44a72852fdfd21e286e34e2065f9c7ad609cbe351b773225c7378fe"
+    },
+    {
+      "path": "runtime/snapshots/snapshot-050.json",
+      "kind": "snapshot",
+      "sha256": "02f3ec3840814ab642f89a7e303df2446ab707001e06bbdd3a1e822c6c3bdd7f"
+    }
+  ],
+  "next": [
+    "实现真实 records replay command",
+    "加入按 region 聚合的 viewer",
+    "为跨派系记忆和分支增加测试"
+  ]
+}

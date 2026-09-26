@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "0.2",
+  "worldId": "ashfall-circuit-scale",
+  "legacyOf": "ashfall-circuit-v0.1",
+  "title": "灰烬回路 / Ashfall Circuit",
+  "subtitle": "十个城区、八个派系、一个无法被独占的水网密钥。",
+  "premise": "轨道尘暴摧毁旧网络三十八年后，十个互相依赖的城区围绕水、电、记忆和晨钟残权继续生活。",
+  "scale": {
+    "regions": 10,
+    "spaces": 60,
+    "actors": 40,
+    "ticks": 50
+  },
+  "tone": [
+    "冷峻",
+    "潮湿霓虹",
+    "资源紧张",
+    "微弱希望",
+    "派系博弈"
+  ],
+  "contentBoundaries": {
+    "violence": "stylized-and-consequential",
+    "bodyModification": "non-gratuitous",
+    "memory": "consent-required",
+    "hope": "preserve-agency"
+  },
+  "resources": {
+    "water": {
+      "initial": 120,
+      "min": 0,
+      "perTick": -1
+    },
+    "blue-salt": {
+      "initial": 24,
+      "min": 0,
+      "uses": [
+        "stabilize-filter",
+        "boost-relay"
+      ]
+    },
+    "power": {
+      "initial": 18,
+      "min": 0
+    },
+    "scrap": {
+      "initial": 90,
+      "min": 0
+    },
+    "medicine": {
+      "initial": 30,
+      "min": 0
+    },
+    "memory-integrity": {
+      "initial": 70,
+      "min": 0
+    },
+    "signal-heat": {
+      "initial": 8,
+      "min": 0
+    }
+  },
+  "timeModel": {
+    "minutesPerTick": 20,
+    "ticksPerDay": 54,
+    "runTicks": 50,
+    "eventPhase": [
+      "consume-resources",
+      "apply-production",
+      "resolve-actors",
+      "record"
+    ]
+  },
+  "deterministicPolicy": {
+    "provider": "deterministic-v0.2",
+    "priority": [
+      "survival",
+      "repair",
+      "movement",
+      "social"
+    ],
+    "tieBreak": "ascending-actor-id"
+  },
+  "storyActs": [
+    {
+      "id": "act-1",
+      "ticks": "1-10",
+      "focus": "密钥与信号浮现"
+    },
+    {
+      "id": "act-2",
+      "ticks": "11-20",
+      "focus": "水与市场收紧"
+    },
+    {
+      "id": "act-3",
+      "ticks": "21-30",
+      "focus": "派系动员"
+    },
+    {
+      "id": "act-4",
+      "ticks": "31-40",
+      "focus": "尘暴与设施故障"
+    },
+    {
+      "id": "act-5",
+      "ticks": "41-50",
+      "focus": "多方汇合与分支点"
+    }
+  ],
+  "openQuestions": [
+    "晨钟残节点是否仍保留可撤销权限？",
+    "水账合作社隐瞒的储量是否足以改变十区配给？",
+    "黑栈禁入层里的儿童声音来自谁的记忆？"
+  ]
+}

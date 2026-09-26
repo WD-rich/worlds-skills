@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "0.2",
+  "id": "f08-ember-farmers-a02",
+  "name": "禾川",
+  "callsign": "水根",
+  "factionId": "f08-ember-farmers",
+  "factionName": "余烬农场",
+  "role": "specialist",
+  "homeSpaceId": "r07-solarfarm-05",
+  "profile": {
+    "premise": "禾川在余烬农场中承担specialist，面对的是具体资源而不是抽象阵营。",
+    "values": [
+      "ember-farmers",
+      "leverage",
+      "survival"
+    ],
+    "goals": [
+      "让余烬农场在下一次资源收紧中保住选择权",
+      "追查一条能改变余烬农场处境的旧系统线索"
+    ],
+    "constraints": [
+      "不能绕过所属群体的资源账本",
+      "无法独自改变城市级规则"
+    ],
+    "capabilities": [
+      "ember-farmers-work",
+      "basic-trade",
+      "short-signal"
+    ],
+    "secret": "禾川知道一条尚未验证的余烬农场旧记录"
+  },
+  "state": {
+    "locationId": "r05-brokenrail-04",
+    "condition": "stable",
+    "needs": {
+      "water": 59,
+      "energy": 73,
+      "heat": 45,
+      "trust": 28,
+      "signal": 77
+    },
+    "activity": "holding-position",
+    "inventory": [
+      "ember-farmers-token-2",
+      "water-ticket"
+    ],
+    "available": true,
+    "memoryIds": []
+  }
+}

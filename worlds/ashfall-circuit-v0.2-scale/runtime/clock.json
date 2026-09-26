@@ -1,0 +1,9 @@
+{
+  "day": 1,
+  "tick": 50,
+  "time": "23:20",
+  "schemaVersion": "0.2",
+  "minutesPerTick": 20,
+  "ticksPerDay": 54,
+  "period": "ash-night"
+}
