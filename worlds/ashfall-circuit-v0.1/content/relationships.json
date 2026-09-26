@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "0.1",
+  "edges": [
+    {
+      "sourceId": "actor-yara-quell",
+      "targetId": "actor-ivo-patch",
+      "type": "owes-care",
+      "score": 2
+    },
+    {
+      "sourceId": "actor-yara-quell",
+      "targetId": "actor-solenne-vek",
+      "type": "bargain-rival",
+      "score": -2
+    },
+    {
+      "sourceId": "actor-ivo-patch",
+      "targetId": "actor-rook-9",
+      "type": "patient",
+      "score": 1
+    },
+    {
+      "sourceId": "actor-solenne-vek",
+      "targetId": "actor-rook-9",
+      "type": "asset-interest",
+      "score": -3
+    }
+  ]
+}

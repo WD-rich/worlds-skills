@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "0.1",
+  "snapshotId": "snapshot-000",
+  "worldId": "ashfall-circuit",
+  "clock": {
+    "schemaVersion": "0.1",
+    "day": 1,
+    "tick": 0,
+    "time": "06:40",
+    "minutesPerTick": 20,
+    "period": "cold-dawn"
+  },
+  "actors": {
+    "actor-yara-quell": {
+      "locationId": "ashline-gate",
+      "condition": "stable",
+      "needs": {
+        "water": 58,
+        "energy": 66,
+        "heat": 31,
+        "trust": 42,
+        "signal": 74
+      },
+      "activity": "checking-cargo",
+      "inventory": [
+        "route-token-03",
+        "damaged-memory-shard"
+      ],
+      "available": true,
+      "memoryIds": []
+    },
+    "actor-ivo-patch": {
+      "locationId": "undergrid-clinic",
+      "condition": "strained",
+      "needs": {
+        "water": 71,
+        "energy": 45,
+        "heat": 38,
+        "trust": 63,
+        "signal": 28
+      },
+      "activity": "calibrating-implant",
+      "inventory": [
+        "sterile-kit-02",
+        "manual-radio"
+      ],
+      "available": true,
+      "memoryIds": []
+    },
+    "actor-solenne-vek": {
+      "locationId": "neon-salvage-bazaar",
+      "condition": "stable",
+      "needs": {
+        "water": 83,
+        "energy": 57,
+        "heat": 29,
+        "trust": 37,
+        "signal": 61
+      },
+      "activity": "pricing-water-tokens",
+      "inventory": [
+        "water-ledger-fragment",
+        "purification-tabs-06"
+      ],
+      "available": true,
+      "memoryIds": []
+    },
+    "actor-rook-9": {
+      "locationId": "reactor-cathedral",
+      "condition": "critical",
+      "needs": {
+        "water": 12,
+        "energy": 21,
+        "heat": 76,
+        "trust": 49,
+        "signal": 18
+      },
+      "activity": "monitoring-coolant",
+      "inventory": [
+        "civic-key-fragment-a",
+        "thermal-sensor"
+      ],
+      "available": false,
+      "memoryIds": []
+    }
+  },
+  "resources": {
+    "water": 12,
+    "blue-salt": 3,
+    "power": 2,
+    "scrap": 9,
+    "signal-heat": 8
+  },
+  "threads": [
+    {
+      "id": "thread-water-key",
+      "status": "latent",
+      "pressure": 62,
+      "description": "水网密钥碎片即将被多个势力同时追踪"
+    }
+  ]
+}

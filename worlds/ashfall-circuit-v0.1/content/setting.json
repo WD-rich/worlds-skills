@@ -1,0 +1,125 @@
+{
+  "schemaVersion": "0.1",
+  "worldId": "ashfall-circuit",
+  "title": "灰烬回路",
+  "subtitle": "在失控的城市神经网上，水比记忆更稀缺。",
+  "elevatorPitch": "一座被轨道尘暴切成孤岛的垂直城市，幸存者靠义体、旧网络和配给水维持生活；一枚能重新唤醒城市基础设施的记忆芯片，让水商、修复师、信使和失职的维护无人机被迫站到同一条线路上。",
+  "premise": "七十二年前，轨道气候环坠落，海岸城市群被盐尘、热浪和长期断电摧毁。幸存者把一座旧物流城改造成分层聚居地。城市的公共 AI“晨钟”没有完全死去，而是分裂成许多互不信任的节点。如今一枚携带原始水网密钥的记忆芯片从灰区返回，所有人都想拥有它，却没有人能单独修复城市。",
+  "tone": [
+    "冷峻",
+    "潮湿霓虹",
+    "资源紧张",
+    "微弱希望",
+    "道德两难"
+  ],
+  "languages": [
+    "zh-CN",
+    "en"
+  ],
+  "contentBoundaries": {
+    "violence": "stylized-and-consequential",
+    "bodyModification": "non-gratuitous",
+    "exploitation": "acknowledge-power-imbalance",
+    "hope": "preserve-character-agency"
+  },
+  "physicalRules": [
+    "外层灰尘会磨损裸露的机械关节和光学传感器。",
+    "城市内的旧网络只能通过短时中继接入，长距离传输会留下可追踪的热痕。",
+    "义体需要稳定电源和校准；失去维护不会立刻致死，但会逐步限制行动。",
+    "净水装置有真实产能上限，任何势力都不能凭空创造水。"
+  ],
+  "socialRules": [
+    "水票是公开交易媒介，水网密钥属于最高级别的政治资产。",
+    "社区把“记忆产权”视为人格权的一部分，未经同意读取记忆会被视为严重侵犯。",
+    "任何组织都无法长期控制全部城区，盟约必须通过交换和声誉维持。"
+  ],
+  "economy": {
+    "scarceResources": [
+      "净水",
+      "稳定电力",
+      "义体零件",
+      "可信信号",
+      "完整记忆"
+    ],
+    "abundantResources": [
+      "废旧金属",
+      "盐尘玻璃",
+      "过期协议",
+      "旧城传说"
+    ],
+    "exchangeTension": "水商控制短期生存，维修者控制长期生存，信使控制双方能否互相信任。"
+  },
+  "timeModel": {
+    "calendar": "ashfall-day",
+    "minutesPerTick": 20,
+    "dayStart": "06:40",
+    "ticksPerDay": 54,
+    "weatherCycle": [
+      "灰尘上升",
+      "白热时段",
+      "电离风",
+      "冷凝夜"
+    ]
+  },
+  "conflictAxes": [
+    "公开分配水网，还是让少数人维持秩序？",
+    "恢复城市 AI，还是保留人类对基础设施的最后控制权？",
+    "记忆是证据、商品，还是不可交易的人格部分？"
+  ],
+  "storySeeds": [
+    "水网密钥只能恢复一半，另一半藏在一段被删除的童年记忆里。",
+    "维护无人机的故障并非硬件损坏，而是它拒绝执行一次旧时代的清场命令。",
+    "城市各区的无线电噪声正在组成一个新的、尚未被任何人训练过的意识。"
+  ],
+  "openQuestions": [
+    "晨钟的分裂节点是否仍共享某种不可见的记忆？",
+    "灰区之外是否存在没有被轨道尘暴摧毁的聚居地？"
+  ],
+  "resources": {
+    "water": {
+      "unit": "tank",
+      "initial": 12,
+      "min": 0,
+      "max": 24,
+      "perTick": -1,
+      "notes": "净水是公共生存资源；未授权消耗不得写入事实。"
+    },
+    "blue-salt": {
+      "unit": "cell",
+      "initial": 3,
+      "min": 0,
+      "max": 8,
+      "notes": "可用于稳定滤水泵或放大中继信号，首轮由生存规则优先。"
+    },
+    "power": {
+      "unit": "cell",
+      "initial": 2,
+      "min": 0,
+      "max": 8,
+      "notes": "高带宽传输会消耗电力并增加信号热痕。"
+    },
+    "scrap": {
+      "unit": "bundle",
+      "initial": 9,
+      "min": 0,
+      "max": 30,
+      "notes": "维修和临时清障的通用材料。"
+    }
+  },
+  "deterministicPolicy": {
+    "provider": "deterministic-v0.1",
+    "priority": [
+      "survival",
+      "repair",
+      "movement",
+      "social"
+    ],
+    "tieBreak": "ascending-actor-id",
+    "eventPhase": [
+      "consume-resources",
+      "apply-production",
+      "resolve-actors",
+      "record"
+    ]
+  }
+}

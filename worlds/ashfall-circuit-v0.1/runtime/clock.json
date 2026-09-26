@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "0.1",
+  "day": 1,
+  "tick": 5,
+  "time": "08:20",
+  "minutesPerTick": 20,
+  "period": "cold-dawn"
+}

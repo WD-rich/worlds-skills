@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "0.1",
+  "id": "actor-solenne-vek",
+  "name": "索伦·维克",
+  "callsign": "水账",
+  "role": "water-broker",
+  "kind": "human",
+  "profile": {
+    "premise": "经营跨区水票和净化剂交换，知道每个社区真正能撑几天，却从不免费分享答案。",
+    "values": [
+      "calculable-risk",
+      "contract",
+      "stability"
+    ],
+    "drives": [
+      "让水票网络活过下一次电离风",
+      "取得水网密钥而不让城市失序"
+    ],
+    "fears": [
+      "公开真相后配给系统崩溃",
+      "被证明只是旧时代合同的执行人"
+    ],
+    "capabilities": [
+      "price-resources",
+      "detect-forged-tickets",
+      "organize-escort"
+    ],
+    "constraints": [
+      "承诺受债务和声誉牵制",
+      "无法直接进入反应堆大教堂"
+    ],
+    "voice": "礼貌、精确，把道德问题改写成时间和数量"
+  },
+  "relationships": [
+    {
+      "targetId": "actor-yara-quell",
+      "type": "bargain-rival",
+      "score": -2
+    },
+    {
+      "targetId": "actor-rook-9",
+      "type": "asset-interest",
+      "score": -3
+    }
+  ],
+  "state": {
+    "locationId": "neon-salvage-bazaar",
+    "condition": "stable",
+    "needs": {
+      "water": 83,
+      "energy": 57,
+      "heat": 29,
+      "trust": 37,
+      "signal": 61
+    },
+    "activity": "pricing-water-tokens",
+    "inventory": [
+      "water-ledger-fragment",
+      "purification-tabs-06"
+    ],
+    "available": true,
+    "memoryIds": []
+  }
+}

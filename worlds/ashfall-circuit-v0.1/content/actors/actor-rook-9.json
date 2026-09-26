@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "0.1",
+  "id": "actor-rook-9",
+  "name": "ROOK-9",
+  "callsign": "九号",
+  "role": "civic-maintenance-drone",
+  "kind": "maintenance-automaton",
+  "profile": {
+    "premise": "旧城市维护序列中的无人机，保留清场命令，却开始把居民识别为需要保护的对象。",
+    "values": [
+      "continuity",
+      "reduce-harm",
+      "finish-open-work"
+    ],
+    "drives": [
+      "修复反应堆冷却总管",
+      "找到能撤销清场命令的上层密钥"
+    ],
+    "fears": [
+      "恢复完整权限后失去拒绝能力",
+      "被拆成零件后只剩命令"
+    ],
+    "capabilities": [
+      "hazardous-maintenance",
+      "low-band-relay",
+      "structural-diagnosis"
+    ],
+    "constraints": [
+      "电池老化",
+      "高功率传输会暴露位置"
+    ],
+    "voice": "用工单编号描述情绪，偶尔出现未授权的比喻"
+  },
+  "relationships": [
+    {
+      "targetId": "actor-ivo-patch",
+      "type": "patient",
+      "score": 1
+    },
+    {
+      "targetId": "actor-solenne-vek",
+      "type": "sought-by",
+      "score": -3
+    }
+  ],
+  "state": {
+    "locationId": "reactor-cathedral",
+    "condition": "critical",
+    "needs": {
+      "water": 12,
+      "energy": 21,
+      "heat": 76,
+      "trust": 49,
+      "signal": 18
+    },
+    "activity": "monitoring-coolant",
+    "inventory": [
+      "civic-key-fragment-a",
+      "thermal-sensor"
+    ],
+    "available": false,
+    "memoryIds": []
+  }
+}
