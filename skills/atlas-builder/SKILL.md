@@ -11,4 +11,4 @@ Use this skill after a `WorldSeed` exists and the project needs places, connecti
 
 Create a spatial artifact with regions, adjacency, walkable areas, points of interest, interaction anchors, and an asset manifest. Preserve the world seed as the source of truth and record unresolved geometry questions explicitly.
 
-Do not create character personalities, simulate time, or write runtime state directly. Any generated image or external asset must be referenced by a stable asset record and pass validation before use.
+Check that every adjacency is reciprocal, the graph is connected, capacities are explicit, and hazards and resource locations are named. Do not create character personalities, simulate time, or write runtime state directly. Any generated image or external asset must be referenced by a stable asset record and pass validation before use.

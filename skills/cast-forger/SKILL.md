@@ -11,4 +11,4 @@ Use this skill when a world needs an initial cast or when a user requests a deli
 
 Create `CharacterProfile` records with identity, role, values, motivations, constraints, relationships, and communication style. Create separate `CharacterState` records for location, needs, mood, activity, and availability.
 
-Keep stable profile data separate from mutable state. Do not decide per-tick actions, invent hidden facts outside the world seed, or write directly to a runtime store.
+Keep stable profile data, mutable state, and relationship edges in separate artifacts. Every actor must declare capabilities and an initial inventory so action validation is possible. Do not decide per-tick actions, invent hidden facts outside the world seed, or write directly to a runtime store.

@@ -16,4 +16,6 @@ Use this skill before committing generated artifacts, before running a new world
 - deterministic replay from the initial seed;
 - credential exposure and malformed provider output.
 
-Return the shared result envelope with machine-readable diagnostics. An audit may suggest a repair, but it must not silently modify runtime state or rewrite records.
+- replay hash from the initial snapshot through a bounded event prefix.
+
+Require event metadata for `before`, `after`, `ruleVersion`, `causedBy`, `actorIds`, and any rejected intent. Return the shared result envelope with machine-readable diagnostics. An audit may suggest a repair, but it must not silently modify runtime state or rewrite records.
