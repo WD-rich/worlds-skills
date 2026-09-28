@@ -1,21 +1,20 @@
 ---
 name: world-audit
-description: Check a worlds-skills workspace for schema, reference, transition, replay, and operational errors before or after a workflow.
+description: Check a world workspace for schema, references, assets, transitions, provider records, replay, and operational errors.
 ---
 
 # World Audit
 
-Use this skill before committing generated artifacts, before running a new world, and after a replay or recovery operation.
+Use this skill before committing generated artifacts, before running a new world, after a replay/recovery operation, and before publishing a viewer.
 
 ## Check
 
-- schema versions and required fields;
-- references between spaces, actors, actions, and records;
-- legal locations, occupancy, capacity, and time transitions;
-- append-only record integrity and snapshot hashes;
-- deterministic replay from the initial seed;
-- credential exposure and malformed provider output.
+- schema versions, migrations, stable IDs, required fields, units, and the shared result envelope;
+- references between settings, spaces, actors, relations, assets, actions, dialogue sessions, timelines, and records;
+- reciprocal connected space graph, legal locations, occupancy, capacity, hazards, and resource bounds;
+- asset dimensions, actor mappings, fallback coverage, and optional image/vision diagnostics;
+- append-only records, provider/cost metadata, snapshot hashes, checkpoint lineage, and rejected intents;
+- deterministic replay from the initial snapshot through a bounded event prefix;
+- credential exposure, malformed provider output, cancelled jobs, and stale locks.
 
-- replay hash from the initial snapshot through a bounded event prefix.
-
-Require event metadata for `before`, `after`, `ruleVersion`, `causedBy`, `actorIds`, and any rejected intent. Return the shared result envelope with machine-readable diagnostics. An audit may suggest a repair, but it must not silently modify runtime state or rewrite records.
+Require event metadata for `before`, `after`, `ruleVersion`, `causedBy`, `actorIds`, provider, and any rejected intent. Return machine-readable diagnostics and repair suggestions. An audit may suggest a repair, but it must not silently modify runtime state or rewrite records.

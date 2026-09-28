@@ -1,14 +1,14 @@
 ---
 name: atlas-builder
-description: Build a navigable spatial model and asset plan from a WorldSeed without deciding character behavior.
+description: Build a navigable spatial model, interaction anchors, resource topology, and an asset plan from a WorldSeed.
 ---
 
 # Atlas Builder
 
-Use this skill after a `WorldSeed` exists and the project needs places, connections, navigation, interaction anchors, or visual asset plans.
+Use this skill after a `WorldSeed` exists and the project needs places, connections, navigation, interaction, resource locations, or a visual asset plan.
 
 ## Produce
 
-Create a spatial artifact with regions, adjacency, walkable areas, points of interest, interaction anchors, and an asset manifest. Preserve the world seed as the source of truth and record unresolved geometry questions explicitly.
+Create a `SpaceGraph` with regions, spaces, reciprocal adjacency, walkable hints, points of interest, interaction anchors, hazards, capacities, resource nodes, and an `AssetManifest` for `scene-painter`.
 
-Check that every adjacency is reciprocal, the graph is connected, capacities are explicit, and hazards and resource locations are named. Do not create character personalities, simulate time, or write runtime state directly. Any generated image or external asset must be referenced by a stable asset record and pass validation before use.
+Check that the graph is connected, every ID is stable, capacities and units are explicit, and a fallback logical map exists without images. Preserve unresolved geometry questions as diagnostics. Do not create character personalities, simulate time, or write runtime state directly. Never infer authoritative adjacency only from generated pixels.

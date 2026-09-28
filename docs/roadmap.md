@@ -1,37 +1,38 @@
 # 开发路线
 
-## M0：契约和 CLI 形状
+## M0：契约和可重复工具
 
 - 定义版本化 Schema、ID 策略和统一结果封装；
-- 创建工作区并执行审计的 CLI 骨架；
+- 提供工作区审计、事件统计和回放校验工具；
 - 固定随机种子、文件布局和诊断格式。
 
 ## M1：静态世界组装
 
-- 实现 `world-conceiver`、`atlas-builder` 和 `cast-forger`；
+- 实现 `world-conceiver`、`atlas-builder`、`cast-forger` 和 `model-bridge`；
 - 提供一个只有两个角色的小型示例世界；
 - 生成产物哈希并验证所有引用。
 
-## M2：确定性运行内核
+## M2：小世界完整闭环
 
 - 实现时钟、合法状态迁移、追加事件和快照；
-- 让 `life-director` 在无外部 API 的情况下运行五步；
-- 从事件重建状态，并与当前快照进行比对。
+- 让 `agent-cognition` + `life-director` + `dialogue-director` 在无外部 API 的情况下运行五步；
+- 从事件重建状态，并与当前快照进行比对；
+- 写入最小记忆和日摘要。
 
-## M3：审计、恢复和回放
+## M3：认知、内容和操作
 
-- 完成 `world-audit` 的机器可读诊断；
-- 增加断点续跑、幂等任务和崩溃恢复；
-- 增加契约、迁移、非法操作和回放测试。
+- 完成 `memory-weaver`、`timeline-keeper`、`story-chronicler` 和 `world-console`；
+- 支持分支、比较、沙盒对话、创建作业进度和断点续跑；
+- 接入 Codex、HTTP、本地模型和规则 Provider。
 
-## M4：认知和世界操作
+## M4：资源与展示
 
-- 加入 `memory-weaver` 和 `world-console`；
-- 增加 Codex、HTTP、本地模型和规则 Provider；
-- 支持分支、比较和沙盒对话。
-
-## M5：资源与展示
-
-- 加入可选的图片、音频和多模态资源 Skill；
-- 提供 Web 或静态回放界面；
+- 完成 `scene-painter`、`sprite-forger` 和 `world-stage`；
+- 提供 live、replay、sandbox 三种舞台模式；
 - 保持无 UI 的 CLI 仍可完整运行。
+
+## M5：规模扩展
+
+- 用同一套契约和回放工具扩展到十倍空间、角色和时间步；
+- 增加性能基线、断点续跑和大事件日志压缩；
+- 小规模和扩展规模使用相同的审计报告格式。

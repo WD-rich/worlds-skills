@@ -2,9 +2,9 @@
 
 面向 Codex 的开放式世界构建与运行工具集。
 
-这个项目把“创建世界”和“运行世界”拆成可以独立调用的 Skill，再用一个与模型无关的内核管理数据、规则、事件和快照。Codex 可以作为主要的协作入口；运行内核不会依赖某个桌面会话、模型供应商或前端。
+这个项目把“创建世界”和“运行世界”拆成可以独立调用的 Skill，再用一个与模型无关的内核管理数据、规则、事件和快照。Codex 可以作为主要协作入口；运行内核不依赖某个桌面会话、模型供应商或前端。
 
-> 当前版本是架构与 Skill 定义阶段，尚未提供完整运行内核。第一版实现目标见 [`docs/roadmap.md`](docs/roadmap.md)。
+> 当前版本正在从 Skill 定义进入可重复运行阶段。无头运行先使用确定性 Provider；模型、图片和前端都是可替换层。路线和验收标准见 [`docs/roadmap.md`](docs/roadmap.md)。
 
 ## 设计目标
 
@@ -18,14 +18,25 @@
 
 | Skill | 作用 | 主要产物 |
 | --- | --- | --- |
+| `contract-keeper` | 管理版本化契约、迁移和统一诊断 | Schema、迁移、结果封装 |
+| `model-bridge` | 连接 Codex、本地、HTTP、视觉和图片 Provider | Provider 记录、成本和脱敏错误 |
 | `world-conceiver` | 将创意整理为可校验的世界种子 | `WorldSeed` |
 | `atlas-builder` | 构建地点、连接和交互空间 | 空间图、导航与资源清单 |
+| `scene-painter` | 生成地图视觉资产、图层、网格并审查 | 地图资产、可行走网格、资产清单 |
 | `cast-forger` | 创建角色设定、关系和初始状态 | 角色档案、角色状态 |
+| `sprite-forger` | 生成角色图片、透明图和动画元数据 | spritesheet、`AssetRef` |
+| `agent-cognition` | 生成感知、需求、情绪、行动菜单和候选意图 | `Perception`、`ActionMenu`、`Intent` |
 | `world-audit` | 检查契约、引用、规则和回放能力 | 结构化诊断报告 |
 | `life-director` | 推进时间并产生合法行动和事件 | 事件记录、状态快照 |
+| `dialogue-director` | 管理对话会话、回合和社会影响 | `DialogueSession`、对话事件 |
 | `memory-weaver` | 管理记忆写入、检索和巩固 | 记忆记录、周期摘要 |
+| `timeline-keeper` | 创建、分支、切换和回放时间线 | `Timeline`、回放帧 |
+| `story-chronicler` | 从事实生成摘要、名句和戏剧评分 | 派生内容、来源引用 |
 | `world-console` | 查询、对话、干预、分支和回放 | 操作结果、回放帧 |
+| `world-stage` | 地图、角色、气泡、面板和实时/回放展示 | 可交互舞台 |
 | `world-runner` | 校验配置、启动任务和报告运行状态 | 运行报告、诊断信息 |
+
+完整覆盖矩阵见 [`docs/capability-matrix.md`](docs/capability-matrix.md)，拆分边界见 [`docs/split-design.md`](docs/split-design.md)。
 
 ## 第一条可运行链路
 
@@ -35,34 +46,30 @@
 创意文本
   → world-conceiver
   → atlas-builder + cast-forger
-  → world-audit
+  → contract-keeper + world-audit
   → 初始快照
-  → life-director（确定性运行五步）
-  → 事件日志 + 新快照
+  → agent-cognition + life-director + dialogue-director
+  → memory-weaver + story-chronicler
+  → timeline-keeper + world-console
+  → 事件日志 + 新快照 + 可回放报告
 ```
 
-之后再加入记忆、分支、Codex 认知适配器、图片资源和 Web 界面。
+小世界闭环通过后，再用同一条链路接入地图和角色资产，并扩大空间、角色和时间步规模。
 
 ## 目录
 
 ```text
 worlds-skills/
 ├── skills/       # Codex Skill 定义
-├── packages/     # 契约、内核、存储和 provider（后续实现）
-├── apps/         # CLI 和服务入口（后续实现）
-├── docs/         # 架构、拆分和路线图
-└── tests/        # 契约、迁移、回放和内核测试（后续实现）
+├── tools/        # 无头校验、回放和开发辅助工具
+├── packages/     # 契约、内核、存储和 provider（逐步实现）
+├── apps/         # CLI 和服务入口（逐步实现）
+├── docs/         # 架构、拆分、覆盖矩阵和路线图
+└── tests/        # 契约、迁移、回放和内核测试（逐步实现）
 ```
 
 生成的世界、运行日志和查看器属于调用方的工作区，不放进这个 Skill 仓库。当前示例工作区位于 `/Users/wd/new_world/neo_world`。
 
-## 文档入口
-
-- [架构说明](docs/architecture.md)
-- [技能拆分](docs/split-design.md)
-- [开发路线](docs/roadmap.md)
-- [贡献指南](CONTRIBUTING.md)
-
 ## 开源状态
 
-当前仓库先固定公共契约和边界，再逐步添加实现。贡献时请优先提交小而独立的变更，并保证 Skill 不绕过内核直接编辑运行状态。
+当前仓库固定公共契约、Skill 边界和可复用工具。贡献时请优先提交小而独立的变更，并保证 Skill 不绕过内核直接编辑运行状态。

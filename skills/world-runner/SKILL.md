@@ -1,12 +1,19 @@
 ---
 name: world-runner
-description: Validate a worlds-skills project, prepare providers and storage, and run or stop its headless workflows.
+description: Validate a world workspace, run deterministic or model-backed jobs, report progress, and recover or stop safely.
 ---
 
 # World Runner
 
-Use this skill for setup, diagnostics, local execution, replay jobs, and clean shutdown.
+Use this skill for workspace setup, provider diagnostics, world creation jobs, headless simulation, replay checks, and clean shutdown.
 
-## Rules
+## Workflow
 
-Validate environment, contracts, provider capabilities, storage paths, and migration state before starting. Keep provider credentials outside source control. Report the exact command, selected provider, world identity, and output location. A failed startup must leave the source world and prior snapshots intact.
+1. resolve the requested workspace and world manifest;
+2. validate runtime version, contracts, provider capabilities, storage paths, and migrations;
+3. create an idempotent job with a seed, mode, tick/day limit, and output path;
+4. stream phase progress and persist a resumable checkpoint;
+5. commit events and snapshots through the Kernel;
+6. run audit and replay checks before reporting success.
+
+Support offline deterministic mode, Codex mode, local/HTTP model mode, and asset-optional mode. A failed startup or cancelled job must leave the source world and prior snapshots intact. Keep credentials outside source control and report the selected provider, model capability, world identity, job ID, checkpoint, and diagnostics.
