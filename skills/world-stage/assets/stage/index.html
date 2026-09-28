@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#10111c"><title>世界舞台</title><link rel="stylesheet" href="stage.css"></head>
+<body>
+<div class="app" id="app">
+  <header class="header">
+    <div class="identity"><div class="brand-mark">✦</div><div><h1 id="worldTitle">世界舞台</h1><span class="eyebrow" id="worldSubtitle">读取世界档案</span></div></div>
+    <div class="world-clock"><span class="sun">◉</span><strong id="clock">第 1 天 · 06:40</strong><small id="weather">冷凝黎明</small></div>
+    <div class="header-actions"><span class="status" id="runStatus">载入中</span><button id="playTop" class="button primary">▶ 播放</button><button id="aboutBtn" class="button">世界档案</button></div>
+  </header>
+  <nav class="toolbar" aria-label="世界操作">
+    <span class="toolbar-label">时间线</span><select id="branchSelect" aria-label="选择时间线"><option value="main">主时间线 · 5 步存档</option></select><button class="button subtle" id="branchBtn">＋ 新时间线</button><span id="modeBadge" class="mode-badge">存档回放</span>
+    <div class="flex"></div><button class="button subtle" id="logBtn">☷ 事件日志</button><button class="button subtle" id="godBtn">✧ 上帝干预</button><button class="button subtle" id="chatBtn">◌ 沙盒对话</button><button class="button subtle" id="exportBtn">↓ 导出</button><button class="button subtle panel-toggle" id="panelToggle" aria-label="切换角色面板">角色 ▤</button>
+  </nav>
+  <main class="workspace" id="workspace">
+    <section class="stage" id="stage" aria-label="世界地图，可拖拽和缩放" tabindex="0">
+      <div id="camera" class="camera"><img id="mapImage" alt="世界地图" draggable="false"><svg id="routeLayer" class="route-layer" aria-hidden="true"></svg><div id="spaceLayer"></div><div id="actorLayer"></div><div class="map-light"></div></div>
+      <div class="vignette"></div><div class="dust" id="dust" aria-hidden="true"></div>
+      <div class="scene-top"><div class="scene-caption"><span id="chapterLabel">CHAPTER 01 / DAWN</span><strong id="chapterTitle">城市正在苏醒</strong></div><div class="resources" id="resources"></div></div>
+      <div id="bubbleLayer" class="bubble-layer" aria-live="polite"></div>
+      <div class="map-notice" id="mapNotice" hidden></div>
+      <div class="map-tools"><div class="zoom-tools"><button id="zoomOut" aria-label="缩小地图">−</button><output id="zoomValue">100%</output><button id="zoomIn" aria-label="放大地图">＋</button><button id="fitBtn" aria-label="地图全览">⌗</button><button id="pathsBtn" aria-label="显示通行路线" aria-pressed="false">⌁</button></div><div class="minimap" id="minimap" role="button" tabindex="0" aria-label="缩略地图，点击定位"><img id="miniImage" alt="地图缩略图" draggable="false"><div id="miniView" class="mini-view"></div><div id="miniActors"></div></div><span class="map-hint">拖拽地图 · 滚轮缩放 · 空格播放</span></div>
+      <button id="dialogueDock" class="dialogue-dock"><span class="dialogue-symbol">❞</span><span class="dialogue-content"><span id="dialogueLabel">近场对话</span><strong id="dialogueText">正在恢复事件……</strong></span><span class="dock-arrow">↗</span></button>
+      <div class="stage-error" id="stageError" hidden></div>
+    </section>
+    <aside class="sidebar" id="sidebar" aria-label="角色面板"><div class="side-title"><h2>角色</h2><span id="actorCount">0 位居民</span><button id="collapsePanel" aria-label="收起角色面板">›</button></div><div id="actorList" class="actor-list"></div><div class="detail-scroll"><div id="profile"></div><div class="tabs" role="tablist" aria-label="角色信息"><button role="tab" data-tab="history" aria-selected="true">动态</button><button role="tab" data-tab="memory" aria-selected="false">记忆</button><button role="tab" data-tab="relations" aria-selected="false">关系</button></div><div id="detailBody"></div></div><div class="sidebar-foot"><span class="tiny-dot"></span><span id="providerNote">Codex 编写 · 本地事件回放</span></div></aside>
+  </main>
+  <footer class="timeline"><div class="play-controls"><button id="backBtn" aria-label="上一步">‹</button><button id="playBtn" class="play-round" aria-label="播放回放">▶</button><button id="nextBtn" aria-label="下一步">›</button><button id="speedBtn" aria-label="播放速度">1×</button></div><div class="timeline-track"><div class="track-label"><span id="tickLabel">初始时刻</span><span id="recordCount">0 条事件</span></div><input type="range" id="timelineRange" min="0" max="5" value="0" step="1" aria-label="回放时间步"><div id="tickMarkers" class="tick-markers"></div></div><div class="timeline-end"><strong id="endTime">08:20</strong><small id="scaleLabel">6 个空间 · 4 个角色</small></div></footer>
+</div>
+<dialog id="modal"><div class="modal-head"><div><span class="eyebrow" id="modalEyebrow">WORLD STAGE</span><h2 id="modalTitle"></h2></div><button id="closeModal" aria-label="关闭窗口">×</button></div><div id="modalBody" class="modal-body"></div></dialog><div class="toast" id="toast" role="status"></div>
+<script type="module" src="stage.mjs"></script>
+</body></html>
