@@ -38,6 +38,8 @@
 
 完整覆盖矩阵见 [`docs/capability-matrix.md`](docs/capability-matrix.md)，拆分边界见 [`docs/split-design.md`](docs/split-design.md)。
 
+面向截图级体验和超越基准产品的实施计划见 [`docs/competitive-plan.md`](docs/competitive-plan.md)。
+
 ## 第一条可运行链路
 
 第一阶段不依赖图片、网页或外部模型，先验证核心数据流：

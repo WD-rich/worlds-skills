@@ -1,5 +1,7 @@
 # 开发路线
 
+具体的产品目标、舞台布局、验收门槛和超越基准的差异化能力见 [`competitive-plan.md`](competitive-plan.md)。
+
 ## M0：契约和可重复工具
 
 - 定义版本化 Schema、ID 策略和统一结果封装；
