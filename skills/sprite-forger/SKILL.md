@@ -16,3 +16,8 @@ Use this skill when an actor needs a visual identity for a stage or viewer.
 
 Keep visual assets separate from actor state. A failed image call must leave a usable fallback and must not remove the actor from the world. Do not encode hidden runtime facts in an image prompt.
 
+## Offline stage path
+
+When the stage is running in offline mode, do not call `model-bridge` or an image provider. Reuse the approved file in `visuals/asset-manifest.v0.2.json`, verify its hash and transparent bounds, then emit the actor mapping and `animation-manifest.v0.2.json`. If a bitmap is unavailable, keep the same actor ID and use a deterministic procedural silhouette with the declared feet/center anchor. Idle, walk, talk, and interact may be transform based; the runtime must expose the fallback in its diagnostics.
+
+The output is presentation data only. Location, activity, inventory, needs, relationships, and event history continue to come from the replay frame consumed by `world-stage`.

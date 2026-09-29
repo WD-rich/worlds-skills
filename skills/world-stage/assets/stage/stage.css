@@ -7,3 +7,29 @@
 @media(max-width:850px){.app{grid-template-rows:53px 39px minmax(0,1fr) 64px}.identity{min-width:180px}.identity h1{font-size:16px}.eyebrow{font-size:8px}.header .status{display:none}.workspace{grid-template-columns:1fr}.sidebar{position:absolute;right:0;top:0;bottom:0;width:285px;z-index:12;box-shadow:-10px 0 30px #0005}.workspace.collapsed .sidebar{display:none}.panel-toggle{display:inline-block}.toolbar-label,.mode-badge{display:none}.toolbar{gap:4px}.button.subtle{padding:4px 6px}.toolbar select{max-width:152px}.toolbar #exportBtn{display:none}.timeline{gap:12px;padding:8px 12px}.timeline-end{display:none}.world-clock{margin-left:auto}.header-actions{margin-left:0}.header-actions #aboutBtn{display:none}}
 @media(max-width:560px){.identity{min-width:0}.world-clock strong{font-size:10px}.world-clock .sun{display:none}.world-clock{gap:0}.header{gap:9px}.identity .eyebrow{display:none}.identity h1{font-size:15px}.brand-mark{width:25px;height:27px;font-size:17px}.header-actions .button{font-size:10px;padding:4px 8px}.toolbar #branchBtn{font-size:0;padding:4px 7px}.toolbar #branchBtn:after{content:'＋';font-size:11px}.toolbar select{max-width:114px;font-size:9px}.button.subtle{font-size:10px}.map-tools{width:112px;left:9px;bottom:10px}.minimap{width:112px;height:63px}.map-hint{display:none}.dialogue-dock{left:132px;right:8px;bottom:12px;min-height:69px;padding:7px 9px;gap:5px}.dialogue-symbol{display:none}.dialogue-content strong{font-size:10px}.scene-top{top:12px;left:10px;right:10px}.scene-caption span{font-size:7px}.scene-caption strong{font-size:11px}.resources{gap:2px}.resource-chip{min-width:28px;padding:3px 5px;gap:3px}.resource-chip i{font-size:10px}.resource-chip b{font-size:11px}.speech{width:152px;font-size:10px;padding:8px 10px}.timeline{gap:9px}.play-controls{gap:3px}.play-controls #speedBtn{display:none}.timeline-track input{height:13px}.track-label span:last-child{display:none}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+
+/* v0.2 offline visual slice: Canvas renders motion while DOM keeps accessible controls. */
+.scene-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none}
+.route-layer{z-index:5}
+.map-light{z-index:1}
+#spaceLayer{z-index:6}
+#actorLayer{z-index:7}
+#interactableLayer{z-index:8}
+.scene-caption small{display:block;font-size:8px;color:#79d5be;letter-spacing:.14em;opacity:.88}
+.canvas-mode .actor .sprite,.canvas-mode .actor .fallback-sprite{opacity:0}
+.canvas-mode .actor-ring{visibility:hidden}
+.canvas-mode .camera>img{opacity:0}
+.stage,.sidebar{min-height:0}
+.sidebar{overflow:hidden}
+.app:has(.workspace.collapsed) .panel-toggle{display:inline-block}
+.actor{width:88px;height:132px;z-index:4}
+.actor-ring{left:24px;width:40px;height:11px}
+.actor-state{position:absolute;top:calc(100% + 20px);left:50%;transform:translateX(-50%);font-size:7px;text-transform:uppercase;letter-spacing:.12em;color:#8fc1b2;opacity:.8;pointer-events:none}
+.actor.action-walk .actor-state{color:#edd19b}
+.interactable{position:absolute;transform:translate(-50%,-50%);z-index:2;display:grid;justify-items:center;gap:2px;opacity:.78;pointer-events:none}
+.interactable i{width:16px;height:16px;border:1px solid #e5c48799;border-radius:50%;background:#171724aa;box-shadow:0 0 10px #e7c17d33}
+.interactable i:after{content:'+';display:block;text-align:center;color:#f1d19a;font-size:12px;line-height:14px}
+.interactable b{font-size:7px;letter-spacing:.06em;color:#e8d4b1;text-shadow:0 1px 3px #000;white-space:nowrap}
+.interactable-trade i{border-color:#63e6d899}
+.interactable-repair i{border-color:#e2947a99}
+.dust{z-index:6}

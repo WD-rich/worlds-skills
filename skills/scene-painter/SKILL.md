@@ -18,3 +18,6 @@ Use this skill after `atlas-builder` when the world needs a visual map or game-r
 
 The final map must keep coordinates and region IDs stable, expose a fallback procedural map, and remain usable without an image provider. Never infer runtime adjacency only from pixels.
 
+## Offline stage path
+
+For a keyless visual slice, skip `model-bridge`: reuse the approved map in `visuals/asset-manifest.v0.2.json` or draw the deterministic fallback grid, then write `visuals/scene.json` with normalized space anchors, declared routes, layer order, occlusion zones, and interactable markers. The scene file may reference style and animation manifests, but it cannot change the logical space graph or replay facts. `world-stage` copies the referenced asset into the generated viewer and keeps the map, labels, and route controls usable when the bitmap is missing.

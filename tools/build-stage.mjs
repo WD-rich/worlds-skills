@@ -13,7 +13,9 @@ const skillRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 if (!relative(skillRoot, out).startsWith('..')) throw new Error('Generated worlds must be outside the skill repository.');
 const json = async path => JSON.parse(await readFile(path, 'utf8'));
 const optional = async path => { try {return await json(path);} catch (e) {if (e.code === 'ENOENT') return []; throw e;} };
+const optionalObject = async path => { try {return await json(path);} catch (e) {if (e.code === 'ENOENT') return null; throw e;} };
 const scenePath = resolve(args.includes('--scene') ? arg('--scene') : join(world,'visuals/scene.json'));
+const scene = await json(scenePath);
 const actors = await Promise.all((await readdir(join(world,'content/actors'))).filter(p => p.endsWith('.json') && p !== 'index.json').sort().map(p => json(join(world,'content/actors',p))));
 const spaces = await json(join(world,'content/spaces.json'));
 const bundle = {
@@ -21,7 +23,12 @@ const bundle = {
   spaces: spaces.spaces || spaces, initial: await json(join(world,'runtime/snapshots/snapshot-000.json')),
   records: (await readFile(join(world,'runtime/records.ndjson'),'utf8')).trim().split(/\r?\n/).filter(Boolean).map(JSON.parse),
   dialogues: await optional(join(world,'runtime/dialogues.json')), memories: await optional(join(world,'runtime/memories.json')),
-  scene: await json(scenePath)
+  scene,
+  visuals: {
+    style: await optionalObject(join(dirname(scenePath), scene.style || 'style.v0.2.json')),
+    assetManifest: await optionalObject(join(dirname(scenePath), scene.assetManifest || 'asset-manifest.v0.2.json')),
+    animationManifest: await optionalObject(join(dirname(scenePath), scene.animationManifest || 'animation-manifest.v0.2.json'))
+  }
 };
 validateBundle(bundle);
 await mkdir(join(out,'assets'), {recursive:true});

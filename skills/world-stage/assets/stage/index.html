@@ -14,9 +14,9 @@
   </nav>
   <main class="workspace" id="workspace">
     <section class="stage" id="stage" aria-label="世界地图，可拖拽和缩放" tabindex="0">
-      <div id="camera" class="camera"><img id="mapImage" alt="世界地图" draggable="false"><svg id="routeLayer" class="route-layer" aria-hidden="true"></svg><div id="spaceLayer"></div><div id="actorLayer"></div><div class="map-light"></div></div>
+      <div id="camera" class="camera"><img id="mapImage" alt="世界地图" draggable="false"><canvas id="sceneCanvas" class="scene-canvas" aria-hidden="true"></canvas><svg id="routeLayer" class="route-layer" aria-hidden="true"></svg><div id="spaceLayer"></div><div id="actorLayer"></div><div id="interactableLayer"></div><div class="map-light"></div></div>
       <div class="vignette"></div><div class="dust" id="dust" aria-hidden="true"></div>
-      <div class="scene-top"><div class="scene-caption"><span id="chapterLabel">CHAPTER 01 / DAWN</span><strong id="chapterTitle">城市正在苏醒</strong></div><div class="resources" id="resources"></div></div>
+      <div class="scene-top"><div class="scene-caption"><span id="chapterLabel">CHAPTER 01 / DAWN</span><strong id="chapterTitle">城市正在苏醒</strong><small id="sceneStatus">OFFLINE REPLAY · PROCEDURAL MOTION</small></div><div class="resources" id="resources"></div></div>
       <div id="bubbleLayer" class="bubble-layer" aria-live="polite"></div>
       <div class="map-notice" id="mapNotice" hidden></div>
       <div class="map-tools"><div class="zoom-tools"><button id="zoomOut" aria-label="缩小地图">−</button><output id="zoomValue">100%</output><button id="zoomIn" aria-label="放大地图">＋</button><button id="fitBtn" aria-label="地图全览">⌗</button><button id="pathsBtn" aria-label="显示通行路线" aria-pressed="false">⌁</button></div><div class="minimap" id="minimap" role="button" tabindex="0" aria-label="缩略地图，点击定位"><img id="miniImage" alt="地图缩略图" draggable="false"><div id="miniView" class="mini-view"></div><div id="miniActors"></div></div><span class="map-hint">拖拽地图 · 滚轮缩放 · 空格播放</span></div>
