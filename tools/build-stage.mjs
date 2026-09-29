@@ -26,6 +26,7 @@ const bundle = {
   scene,
   visuals: {
     style: await optionalObject(join(dirname(scenePath), scene.style || 'style.v0.2.json')),
+    layout: await optionalObject(join(dirname(scenePath), scene.layout || 'layout.v0.3.json')),
     assetManifest: await optionalObject(join(dirname(scenePath), scene.assetManifest || 'asset-manifest.v0.2.json')),
     animationManifest: await optionalObject(join(dirname(scenePath), scene.animationManifest || 'animation-manifest.v0.2.json'))
   }
@@ -40,6 +41,6 @@ const importAsset = async (ref) => {
 };
 bundle.scene.map.image = await importAsset(bundle.scene.map.image);
 for (const asset of Object.values(bundle.scene.actors)) asset.image = await importAsset(asset.image);
-for (const file of ['index.html','stage.css','stage.mjs','engine.mjs']) await cp(join(skillRoot,'skills/world-stage/assets/stage',file),join(out,file));
+for (const file of ['index.html','stage.css','stage-v03.css','stage.mjs','engine.mjs']) await cp(join(skillRoot,'skills/world-stage/assets/stage',file),join(out,file));
 await writeFile(join(out,'world.json'),JSON.stringify(bundle,null,2)+'\n');
 console.log(JSON.stringify({out,actors:actors.length,spaces:bundle.spaces.length,ticks:Math.max(...bundle.records.map(r=>r.gameTime.tick)),dialogues:bundle.dialogues.length,memories:bundle.memories.length,provider:'recorded / local-rules'},null,2));

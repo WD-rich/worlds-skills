@@ -12,6 +12,8 @@ const state = {
   tick: 0,
   selectedActor: null,
   selectedSpace: null,
+  selectedRecord: null,
+  focusMode: 'world',
   tab: 'history',
   zoom: 1,
   pan: [0, 0],
@@ -58,6 +60,8 @@ const records = () => [...state.bundle.records, ...(state.branch?.records || [])
   .filter(r => Number(r.gameTime?.tick || 0) <= state.tick)
   .sort((a, b) => Number(a.gameTime?.tick || 0) - Number(b.gameTime?.tick || 0));
 const recordById = id => [...state.bundle.records, ...(state.branch?.records || [])].find(r => r.recordId === id);
+const currentRecords = () => records().filter(r => Number(r.gameTime?.tick || 0) === state.tick);
+const currentRecord = () => currentRecords().at(-1);
 const sourceLinks = ids => (ids || []).map(id => `<span class="source-link" data-record="${esc(id)}" role="button" tabindex="0">↗ ${esc(id)}</span>`).join(' ');
 function fmtTime(value) { return value || '—'; }
 function notify(message) {
@@ -78,11 +82,11 @@ function scaleCamera() {
   const rect = $('stage').getBoundingClientRect();
   const [width, height] = mapSize();
   state.stageSize = [rect.width, rect.height];
-  state.cameraScale = Math.min(rect.width / width, rect.height / height) * state.zoom;
+  state.cameraScale = Math.max(rect.width / width, rect.height / height) * state.zoom;
   const camera = $('camera');
   camera.style.width = `${width}px`;
   camera.style.height = `${height}px`;
-  camera.style.transform = `translate(${state.pan[0]}px,${state.pan[1]}px) scale(${state.cameraScale})`;
+  camera.style.transform = `translate(${(rect.width - width * state.cameraScale) / 2 + state.pan[0]}px,${(rect.height - height * state.cameraScale) / 2 + state.pan[1]}px) scale(${state.cameraScale})`;
   const canvas = $('sceneCanvas');
   if (canvas && (canvas.width !== width || canvas.height !== height)) {
     canvas.width = width;
@@ -138,7 +142,7 @@ function renderSpaces() {
   layer.innerHTML = state.bundle.spaces.map(s => {
     const p = spacePoint(s.id);
     const count = Object.values(state.frame.actors).filter(a => a.locationId === s.id).length;
-    return `<button class="space-label${state.selectedSpace === s.id ? ' selected' : ''}" data-space="${esc(s.id)}" style="${pointToStyle(p)}">${esc(s.name)}${count ? ` <small>${count}</small>` : ''}</button>`;
+    return `<button class="space-label${state.selectedSpace === s.id ? ' selected' : ''}${count ? ' occupied' : ''}" data-space="${esc(s.id)}" style="${pointToStyle(p)}">${esc(s.name)}${count ? ` <small>${count}</small>` : ''}</button>`;
   }).join('');
   layer.querySelectorAll('[data-space]').forEach(el => el.addEventListener('click', () => selectSpace(el.dataset.space)));
 }
@@ -166,7 +170,8 @@ function renderActors() {
       'actor',
       profile.kind?.includes('drone') ? 'drone' : '',
       `action-${action}`,
-      state.selectedActor === id ? 'selected' : '',
+      state.selectedActor === id && state.focusMode === 'actor' ? 'selected' : '',
+      currentRecord()?.actorIds?.includes(id) ? 'event-active' : '',
       image ? 'canvas-proxy' : '',
     ].filter(Boolean).join(' ');
     const fallback = `<span class="fallback-sprite" style="--actor-color:${fallbackColors[index % fallbackColors.length]}"></span>`;
@@ -177,7 +182,7 @@ function renderActors() {
 
 function renderBubbles() {
   const layer = $('bubbleLayer');
-  const sessions = sessionsAt(state.bundle, state.tick).slice(-1);
+  const sessions = sessionsAt(state.bundle, state.tick).filter(session => session.tick === state.tick).slice(-1);
   const positions = {};
   const timestamp = performance.now();
   layer.innerHTML = sessions.flatMap(session => session.turns.map((turn, turnIndex) => {
@@ -211,7 +216,9 @@ function renderHeader() {
 }
 
 function renderDialogueDock() {
-  const session = sessionsAt(state.bundle, state.tick).at(-1);
+  const session = sessionsAt(state.bundle, state.tick).findLast(item => item.tick === state.tick);
+  $('dialogueDock').hidden = !session;
+  if (!session) return;
   const turn = session?.turns.at(-1);
   $('dialogueLabel').textContent = session ? `${session.title} · ${session.kind || '正式对话'}` : '世界状态 · 初始快照';
   $('dialogueText').textContent = turn?.text || state.bundle.setting.elevatorPitch || '世界刚刚苏醒，等待第一条事件。';
@@ -219,9 +226,11 @@ function renderDialogueDock() {
 
 function renderResources() {
   const labels = {water: ['💧', '净水'], power: ['ϟ', '电力'], 'blue-salt': ['◆', '蓝盐'], scrap: ['▧', '废料'], 'signal-heat': ['⌁', '热痕'], 'filter-output': ['✚', '滤水']};
+  const previous = state.tick > 0 ? frameAtTick(state.tick - 1).resources : {};
   $('resources').innerHTML = Object.entries(state.frame.resources).map(([key, value]) => {
     const label = labels[key] || ['•', key];
-    return `<button class="resource-chip" data-resource="${esc(key)}"><i>${label[0]}</i><span>${label[1]}</span><b>${value}</b></button>`;
+    const delta = state.tick > 0 ? value - Number(previous[key] || 0) : 0;
+    return `<button class="resource-chip${delta ? ' changed' : ''}" data-resource="${esc(key)}" aria-label="${esc(label[1])} ${value}${delta ? `，变化 ${delta > 0 ? '+' : ''}${delta}` : ''}"><i>${label[0]}</i><span>${label[1]}</span><b>${value}</b>${delta ? `<em class="${delta > 0 ? 'positive' : 'negative'}">${delta > 0 ? '+' : ''}${delta}</em>` : ''}</button>`;
   }).join('');
   $('resources').querySelectorAll('[data-resource]').forEach(el => el.addEventListener('click', () => resourceModal(el.dataset.resource)));
 }
@@ -235,6 +244,50 @@ function renderSidebar() {
   }).join('');
   $('actorList').querySelectorAll('[data-actor]').forEach(el => el.addEventListener('click', () => selectActor(el.dataset.actor)));
   renderProfile();
+  renderWorldPanel();
+  renderEventPanel();
+  renderFocusPanel();
+}
+
+function renderWorldPanel() {
+  const selected = space(state.selectedSpace);
+  const latest = currentRecord();
+  const cue = scene().timeline?.find(item => item.tick === state.tick) || {};
+  const focal = selected ? `<section class="world-focus"><span class="section-eyebrow">当前空间</span><h3>${esc(selected.name)}</h3><p>${esc(selected.description || '这一处空间等待新的记录。')}</p><button class="inline-action" data-focus-space="${esc(selected.id)}">定位到地图 ↗</button></section>` : '';
+  const overviewFallback = `${state.bundle.actors.length} 位居民分散在 ${state.bundle.spaces.length} 处空间。点击地图上的角色或空间，查看各自的状态。`;
+  $('worldOverview').innerHTML = `<section class="world-intro"><span class="section-eyebrow">第 ${state.frame.clock?.day || 1} 天 · ${esc(state.frame.clock?.time || '')}</span><h3>${esc(cue.title || state.bundle.setting.title || '世界正在运行')}</h3><p>${esc(state.bundle.setting.elevatorPitch || state.bundle.setting.subtitle || '')}</p></section>${focal}<section class="world-feed"><span class="section-eyebrow">此刻发生</span><strong>${esc(latest && latest.type !== 'world.initialized' ? eventDescription(latest) : overviewFallback)}</strong>${latest && latest.type !== 'world.initialized' ? `<button class="inline-action" data-focus-record="${esc(latest.recordId)}">查看事件与来源 ↗</button>` : ''}</section><section class="world-places"><span class="section-eyebrow">空间 / ${state.bundle.spaces.length}</span>${state.bundle.spaces.map(item => { const count = Object.values(state.frame.actors).filter(value => value.locationId === item.id).length; return `<button data-world-space="${esc(item.id)}" class="place-row${state.selectedSpace === item.id ? ' selected' : ''}"><span>◇ ${esc(item.name)}</span><small>${count ? `${count} 位居民` : '暂无居民'}</small></button>`; }).join('')}</section>`;
+  $('worldOverview').querySelectorAll('[data-world-space]').forEach(el => el.addEventListener('click', () => selectSpace(el.dataset.worldSpace)));
+  $('worldOverview').querySelector('[data-focus-space]')?.addEventListener('click', event => focusSpace(event.currentTarget.dataset.focusSpace));
+  $('worldOverview').querySelector('[data-focus-record]')?.addEventListener('click', event => selectRecord(event.currentTarget.dataset.focusRecord));
+}
+
+function renderEventPanel() {
+  const visible = records().slice().reverse();
+  const selected = recordById(state.selectedRecord) || currentRecord();
+  $('eventDetail').innerHTML = selected ? `<span class="section-eyebrow">T${selected.gameTime.tick} / ${esc(selected.gameTime.time || '')} · ${esc(selected.type)}</span><h3>${esc(eventDescription(selected))}</h3><p>${selected.actorIds?.length ? selected.actorIds.map(actorName).map(esc).join(' · ') : '世界事件'}${selected.spaceId ? ` · ${esc(space(selected.spaceId)?.name || selected.spaceId)}` : ''}</p>${Object.entries(selected.resourceDelta || {}).length ? `<div class="delta-list">${Object.entries(selected.resourceDelta).map(([key, value]) => `<span>${esc(key)} <b class="${value > 0 ? 'positive' : 'negative'}">${value > 0 ? '+' : ''}${value}</b></span>`).join('')}</div>` : ''}<button class="inline-action" data-source-record="${esc(selected.recordId)}">原始记录 ${esc(selected.recordId)} ↗</button>` : '<p class="empty">当前时间没有事件。</p>';
+  $('eventList').innerHTML = `<span class="section-eyebrow">事件时间线 / ${visible.length}</span>${visible.map(record => `<button class="event-row${selected?.recordId === record.recordId ? ' selected' : ''}" data-event-record="${esc(record.recordId)}"><span>T${record.gameTime.tick} · ${esc(record.gameTime.time || '')}</span><strong>${esc(eventDescription(record))}</strong></button>`).join('')}`;
+  $('eventList').querySelectorAll('[data-event-record]').forEach(el => el.addEventListener('click', () => selectRecord(el.dataset.eventRecord)));
+  $('eventDetail').querySelector('[data-source-record]')?.addEventListener('click', event => showRecord(event.currentTarget.dataset.sourceRecord));
+}
+
+function renderFocusPanel() {
+  const titles = {world: ['WORLD OVERVIEW', '世界概览'], actor: ['CHARACTER FOCUS', '角色档案'], event: ['EVENT FOCUS', '事件档案']};
+  const [kicker, title] = titles[state.focusMode] || titles.world;
+  $('focusKicker').textContent = kicker;
+  $('focusTitle').textContent = title;
+  for (const mode of ['world', 'actor', 'event']) {
+    $(`${mode}Panel`).hidden = mode !== state.focusMode;
+    $(`focus${mode[0].toUpperCase() + mode.slice(1)}`).setAttribute('aria-selected', String(mode === state.focusMode));
+  }
+  $('stage').dataset.focusMode = state.focusMode;
+}
+
+function renderEventCue() {
+  const record = currentRecord();
+  const labels = {'world.initialized': '世界初始状态', 'actor.moved': '路线移动', 'signal.emitted': '紧急信号', 'signal.decoded': '短波接通', 'exchange.completed': '物资交换', 'resource.decision': '生存决策'};
+  const summary = record && record.type !== 'world.initialized' ? eventDescription(record) : '灰烬回路已启动，世界等待下一次推进。';
+  $('eventCue').innerHTML = `<span>T${state.tick} · ${esc(labels[record?.type] || '世界事件')}</span><strong>${esc(summary)}</strong><small>${record ? `${esc(record.recordId)} · 点击查看记录` : '离线回放'}</small>`;
+  $('eventCue').dataset.record = record?.recordId || '';
 }
 
 function renderProfile() {
@@ -287,12 +340,15 @@ function renderTimeline() {
 function renderMini() {
   $('miniImage').src = state.bundle.scene.map.image;
   $('miniActors').innerHTML = Object.entries(state.frame.actors).map(([id]) => `<i class="mini-actor" data-actor="${esc(id)}" style="${pointToStyle(spacePoint(state.frame.actors[id].locationId))}"></i>`).join('');
-  const width = Math.min(92, 56 / state.zoom);
-  const height = Math.min(90, 54 / state.zoom);
+  const [mapWidth, mapHeight] = mapSize();
+  const width = Math.min(100, state.stageSize[0] / (mapWidth * state.cameraScale) * 100);
+  const height = Math.min(100, state.stageSize[1] / (mapHeight * state.cameraScale) * 100);
+  const imageLeft = (state.stageSize[0] - mapWidth * state.cameraScale) / 2 + state.pan[0];
+  const imageTop = (state.stageSize[1] - mapHeight * state.cameraScale) / 2 + state.pan[1];
   $('miniView').style.width = `${width}%`;
   $('miniView').style.height = `${height}%`;
-  $('miniView').style.left = `${50 - width / 2}%`;
-  $('miniView').style.top = `${50 - height / 2}%`;
+  $('miniView').style.left = `${clamp(-imageLeft / (mapWidth * state.cameraScale) * 100, 0, 100 - width)}%`;
+  $('miniView').style.top = `${clamp(-imageTop / (mapHeight * state.cameraScale) * 100, 0, 100 - height)}%`;
 }
 
 function render() {
@@ -306,6 +362,7 @@ function render() {
   pathSvg();
   renderHeader();
   renderResources();
+  renderEventCue();
   renderSpaces();
   renderInteractables();
   renderActors();
@@ -315,6 +372,7 @@ function render() {
   renderTimeline();
   renderMini();
   scaleCamera();
+  renderMini();
   $('workspace').classList.toggle('collapsed', state.panelCollapsed);
   $('stage').classList.toggle('show-paths', state.showPaths);
   $('zoomValue').textContent = `${Math.round(state.zoom * 100)}%`;
@@ -337,6 +395,7 @@ function setTick(value) {
     duration: Number(style().motion?.transitionMs || 720),
   } : null;
   state.tick = next;
+  state.selectedRecord = null;
   render();
   if (state.follow) focusActor(state.follow);
 }
@@ -357,9 +416,42 @@ function togglePlay() {
   }
   render();
 }
-function selectActor(id) { state.selectedActor = id; renderActors(); renderSidebar(); notify(`${actorName(id)} · ${space(state.frame.actors[id]?.locationId)?.name || ''}`); }
-function selectSpace(id) { state.selectedSpace = id; renderSpaces(); const selected = space(id); if (selected) notify(`${selected.name} · ${selected.description}`); }
-function focusSpace(id) { const point = spacePoint(id); state.pan = [(50 - point[0]) * state.stageSize[0] / 100, (50 - point[1]) * state.stageSize[1] / 100]; scaleCamera(); }
+function setFocusMode(mode) {
+  if (!['world', 'actor', 'event'].includes(mode)) return;
+  state.focusMode = mode;
+  state.panelCollapsed = false;
+  render();
+}
+function selectActor(id) {
+  if (!actor(id)) return;
+  state.selectedActor = id;
+  setFocusMode('actor');
+  focusActor(id);
+}
+function selectSpace(id) {
+  if (!space(id)) return;
+  state.selectedSpace = id;
+  setFocusMode('world');
+  focusSpace(id);
+}
+function selectRecord(id) {
+  const record = recordById(id);
+  if (!record) return;
+  if (Number(record.gameTime?.tick || 0) !== state.tick) setTick(Number(record.gameTime?.tick || 0));
+  state.selectedRecord = id;
+  state.focusMode = 'event';
+  state.panelCollapsed = false;
+  render();
+  if (record.spaceId) focusSpace(record.spaceId);
+  else if (record.actorIds?.[0]) focusActor(record.actorIds[0]);
+}
+function focusSpace(id) {
+  const point = spacePoint(id);
+  const [width, height] = mapSize();
+  state.pan = [(0.5 - point[0] / 100) * width * state.cameraScale, (0.5 - point[1] / 100) * height * state.cameraScale];
+  scaleCamera();
+  renderMini();
+}
 function focusActor(id) { const runtime = state.frame.actors[id]; if (runtime) focusSpace(runtime.locationId); }
 
 function showRecord(id) {
@@ -563,6 +655,8 @@ function drawSceneCanvas(timestamp) {
 }
 
 function setup() {
+  document.querySelectorAll('[data-focus-mode]').forEach(button => button.addEventListener('click', () => setFocusMode(button.dataset.focusMode)));
+  $('eventCue').addEventListener('click', () => { if ($('eventCue').dataset.record) selectRecord($('eventCue').dataset.record); });
   $('timelineRange').addEventListener('input', event => setTick(event.target.value));
   $('playBtn').addEventListener('click', togglePlay);
   $('playTop').addEventListener('click', togglePlay);
@@ -581,17 +675,26 @@ function setup() {
   $('chatBtn').addEventListener('click', chatModal);
   $('exportBtn').addEventListener('click', exportBundle);
   $('aboutBtn').addEventListener('click', () => openModal('世界档案', 'WORLD CONCEIVER', `<p class="world-premise">${esc(state.bundle.setting.premise || state.bundle.setting.elevatorPitch)}</p><h3>物理规则</h3><p>${(state.bundle.setting.physicalRules || []).map(esc).join('<br>')}</p><h3>冲突轴</h3><p>${(state.bundle.setting.conflictAxes || []).map(esc).join('<br>')}</p>`));
-  $('logBtn').addEventListener('click', () => openModal('事件日志', 'EVENT CHRONICLE', records().slice().reverse().map(record => `<article class="record-card"><header><span>T${record.gameTime.tick} · ${fmtTime(record.gameTime.time)}</span><span>${esc(record.type)}</span></header><p>${esc(eventDescription(record))}</p><button class="source-link" data-record="${esc(record.recordId)}">查看记录 ${esc(record.recordId)}</button></article>`).join('')));
+  $('logBtn').addEventListener('click', () => setFocusMode('event'));
   $('closeModal').addEventListener('click', closeModal);
   $('modal').addEventListener('click', event => { if (event.target === $('modal')) closeModal(); });
   document.querySelectorAll('[data-tab]').forEach(button => button.addEventListener('click', () => { state.tab = button.dataset.tab; document.querySelectorAll('[data-tab]').forEach(tab => tab.setAttribute('aria-selected', String(tab === button))); renderDetail(); }));
   $('dialogueDock').addEventListener('click', () => { const session = sessionsAt(state.bundle, state.tick).at(-1); if (session) showRecord(session.sourceRecordIds.at(-1)); else notify('当前时刻还没有正式对话'); });
-  $('minimap').addEventListener('click', event => { const rect = $('minimap').getBoundingClientRect(); const point = [(event.clientX - rect.left) / rect.width * 100, (event.clientY - rect.top) / rect.height * 100]; state.pan = [(50 - point[0]) * state.stageSize[0] / 100, (50 - point[1]) * state.stageSize[1] / 100]; scaleCamera(); });
+  $('minimap').addEventListener('click', event => { const rect = $('minimap').getBoundingClientRect(); const point = [(event.clientX - rect.left) / rect.width * 100, (event.clientY - rect.top) / rect.height * 100]; const [width, height] = mapSize(); state.pan = [(0.5 - point[0] / 100) * width * state.cameraScale, (0.5 - point[1] / 100) * height * state.cameraScale]; scaleCamera(); renderMini(); });
   $('stage').addEventListener('pointerdown', event => { if (event.target.closest('button,select,input,dialog')) return; state.drag = {x: event.clientX, y: event.clientY, pan: [...state.pan]}; $('stage').setPointerCapture(event.pointerId); });
-  $('stage').addEventListener('pointermove', event => { if (!state.drag) return; state.pan = [state.drag.pan[0] + event.clientX - state.drag.x, state.drag.pan[1] + event.clientY - state.drag.y]; scaleCamera(); });
+  $('stage').addEventListener('pointermove', event => { if (!state.drag) return; state.pan = [state.drag.pan[0] + event.clientX - state.drag.x, state.drag.pan[1] + event.clientY - state.drag.y]; scaleCamera(); renderMini(); });
   $('stage').addEventListener('pointerup', event => { state.drag = null; try { $('stage').releasePointerCapture(event.pointerId); } catch {} });
   $('stage').addEventListener('wheel', event => { event.preventDefault(); state.zoom = clamp(state.zoom + (event.deltaY < 0 ? 0.08 : -0.08), 0.7, 2); scaleCamera(); renderMini(); }, {passive: false});
-  document.addEventListener('keydown', event => { if (['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName)) return; if (event.code === 'Space') { event.preventDefault(); togglePlay(); } if (event.key === 'ArrowRight') setTick(state.tick + 1); if (event.key === 'ArrowLeft') setTick(state.tick - 1); if (event.key === 'Escape' && $('modal').open) closeModal(); });
+  document.addEventListener('keydown', event => {
+    if ($('modal').open) { if (event.key === 'Escape') closeModal(); return; }
+    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName)) return;
+    if (event.code === 'Space') { event.preventDefault(); togglePlay(); }
+    if (event.key === 'ArrowRight') setTick(state.tick + 1);
+    if (event.key === 'ArrowLeft') setTick(state.tick - 1);
+    if (event.key === '1') setFocusMode('world');
+    if (event.key === '2') setFocusMode('actor');
+    if (event.key === '3') setFocusMode('event');
+  });
   window.addEventListener('resize', () => { scaleCamera(); render(); });
 }
 

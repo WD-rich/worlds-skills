@@ -23,7 +23,7 @@ const replay = replayWorkspace(loaded, requestedTicks || undefined);
 const run = runSummary(loaded, replay);
 
 const report = {
-  schemaVersion: "0.2",
+  schemaVersion: loaded.manifest.schemaVersion ?? "0.2",
   workspace: relative(process.cwd(), workspace) || ".",
   workspaceId: loaded.manifest.workspaceId ?? null,
   worldId: loaded.manifest.worldId ?? loaded.state?.worldId ?? null,

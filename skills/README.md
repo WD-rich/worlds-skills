@@ -20,6 +20,8 @@
 - `story-chronicler/`
 - `world-console/`
 - `world-stage/`
+- `stage-ui-director/`
+- `stage-visual-qa/`
 - `world-runner/`
 
 每个 Skill 都应说明触发条件、前置输入、输出产物、验证方式、错误恢复和禁止事项。Skill 不得直接编辑运行状态或追加事件。完整映射见 [`docs/capability-matrix.md`](../docs/capability-matrix.md)。

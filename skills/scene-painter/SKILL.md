@@ -21,3 +21,5 @@ The final map must keep coordinates and region IDs stable, expose a fallback pro
 ## Offline stage path
 
 For a keyless visual slice, skip `model-bridge`: reuse the approved map in `visuals/asset-manifest.v0.2.json` or draw the deterministic fallback grid, then write `visuals/scene.json` with normalized space anchors, declared routes, layer order, occlusion zones, and interactable markers. The scene file may reference style and animation manifests, but it cannot change the logical space graph or replay facts. `world-stage` copies the referenced asset into the generated viewer and keeps the map, labels, and route controls usable when the bitmap is missing.
+
+For the v0.3 map-first stage, also write `visuals/layout.v0.3.json` with the map ratio, focus drawer, safe area, target viewports, and the `world`/`actor`/`event` focus modes. Keep space anchors, routes, and interactables in normalized percent coordinates so the stage can reframe the same scene at desktop and narrow viewports. The layout file describes presentation only; it cannot add spaces, actors, routes, or events.

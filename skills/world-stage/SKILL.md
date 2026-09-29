@@ -26,6 +26,21 @@ The v0.2 path is intentionally keyless: it reuses checked-in map/portrait assets
 
 Before handing off a generated stage, run the world audit and replay check, then inspect at least T0, a movement tick, a dialogue tick, and the final tick in a browser. The stage status must identify the offline replay/procedural mode so a viewer can distinguish recorded facts from presentation motion.
 
+## Map-first stage (v0.3)
+
+When the workspace scene declares `schemaVersion: "0.3"` and a `layout` manifest, use the map-first contract:
+
+- keep the map as the dominant surface and reserve one contextual drawer for `world`, `actor`, or `event` focus;
+- expose the three focus modes as visible tabs and keyboard shortcuts `1`, `2`, and `3`;
+- show the current replay record as an event cue, mark current participants on the map, and show resource deltas at the tick where they occur;
+- keep dialogue bubbles and the bottom dialogue dock scoped to the current tick so old conversation does not cover the scene;
+- allow selecting a space, actor, event, or source record to focus the map without mutating replay data;
+- keep the stage usable when the drawer is collapsed and retain readable DOM labels for Canvas content.
+
+The v0.3 layout contract is carried by `visuals/layout.v0.3.json` and the style contract by `visuals/style.v0.3.json`. The builder copies the optional `stage-v03.css` layer into the viewer. This is still a keyless, offline presentation path: the viewer consumes checked-in assets and recorded facts and never asks an image or language model to render a frame.
+
+For a v0.3 handoff, run the checks in [`stage-visual-qa`](../stage-visual-qa/SKILL.md) at T0, a movement tick, a dialogue tick, an exchange or decision tick, and a narrow viewport. Record the visible tick, focus mode, selected context, source record, resource values, and any overlap or text-fit finding.
+
 ## Reusable implementation
 
 The pure projection and validation code lives in [`assets/stage/engine.mjs`](assets/stage/engine.mjs). Build a stage from a world workspace with [`../../tools/build-stage.mjs`](../../tools/build-stage.mjs):

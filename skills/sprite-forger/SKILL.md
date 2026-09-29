@@ -21,3 +21,5 @@ Keep visual assets separate from actor state. A failed image call must leave a u
 When the stage is running in offline mode, do not call `model-bridge` or an image provider. Reuse the approved file in `visuals/asset-manifest.v0.2.json`, verify its hash and transparent bounds, then emit the actor mapping and `animation-manifest.v0.2.json`. If a bitmap is unavailable, keep the same actor ID and use a deterministic procedural silhouette with the declared feet/center anchor. Idle, walk, talk, and interact may be transform based; the runtime must expose the fallback in its diagnostics.
 
 The output is presentation data only. Location, activity, inventory, needs, relationships, and event history continue to come from the replay frame consumed by `world-stage`.
+
+For the v0.3 stage, include a stable anchor (`feet` for people, `center` for drones or floating objects), a readable fallback silhouette, and an action mapping for `idle`, `walk`, `talk`, and `interact`. The viewer may dim inactive actors and highlight current event participants, but it must keep the actor's accessible name and replay-derived location when an image is missing.

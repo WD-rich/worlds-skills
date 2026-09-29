@@ -1,0 +1,4 @@
+interface:
+  display_name: "Stage Visual QA"
+  short_description: "Capture and diagnose visual world-stage states"
+  default_prompt: "Use $stage-visual-qa to capture target viewports and replay ticks, then diagnose overlap, readability, and visual regressions."

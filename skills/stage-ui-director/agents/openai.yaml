@@ -1,0 +1,4 @@
+interface:
+  display_name: "Stage UI Director"
+  short_description: "Design contextual UI for replayable world stages"
+  default_prompt: "Use $stage-ui-director to redesign this world stage around map readability, focus modes, and state-driven interaction."
