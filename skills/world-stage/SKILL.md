@@ -41,6 +41,21 @@ The v0.3 layout contract is carried by `visuals/layout.v0.3.json` and the style 
 
 For a v0.3 handoff, run the checks in [`stage-visual-qa`](../stage-visual-qa/SKILL.md) at T0, a movement tick, a dialogue tick, an exchange or decision tick, and a narrow viewport. Record the visible tick, focus mode, selected context, source record, resource values, and any overlap or text-fit finding.
 
+## Reusable visual production contract (v0.4)
+
+Use [`references/visual-production-contract.v0.4.md`](references/visual-production-contract.v0.4.md) when a stage needs a visual rebuild or when a new world joins the production pipeline. Keep the contract in the world workspace as versioned `style.v0.4.json`, `layout.v0.4.json`, and `animation-manifest.v0.4.json`; presentation changes must not rewrite replay facts.
+
+The v0.4 stage has four explicit visual roles:
+
+- the map is the largest continuous surface and uses one orthographic/top-down 2.5D camera;
+- gameplay actors use a common feet/center anchor, a bounded scene height, a ground shadow, and a deterministic silhouette fallback;
+- portraits and expressive front art are drawer/list/detail assets only;
+- routes, event cues, bubbles, resource deltas, and focus panels are derived from replay records and stay readable when the drawer collapses.
+
+The builder copies the optional `stage-v04.css` layer and the runtime supports `renderMode: "silhouette"` for map actors. A world can ship without an image provider: the map, gameplay silhouettes, accessible labels, route graph, and replay controls still render. Provider-backed art is an asset pipeline input with a hash and role, never a renderer dependency.
+
+Before promoting a v0.4 stage, follow the reusable plan in [`../../docs/visual-redesign-v04-plan.md`](../../docs/visual-redesign-v04-plan.md) or copy [`../stage-ui-director/references/visual-redesign-plan-template.md`](../stage-ui-director/references/visual-redesign-plan-template.md) into the world workspace. Capture T0/world, movement, dialogue, exchange/decision, collapsed panel, narrow drawer, missing asset, and reduced-motion states with `stage-visual-qa`; require zero hard failures for build, replay, overflow, missing fallback, and source-text fit.
+
 ## Reusable implementation
 
 The pure projection and validation code lives in [`assets/stage/engine.mjs`](assets/stage/engine.mjs). Build a stage from a world workspace with [`../../tools/build-stage.mjs`](../../tools/build-stage.mjs):

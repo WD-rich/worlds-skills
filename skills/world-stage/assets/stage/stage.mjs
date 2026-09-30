@@ -21,7 +21,7 @@ const state = {
   timer: null,
   speed: 1,
   showPaths: false,
-  panelCollapsed: false,
+  panelCollapsed: window.matchMedia('(max-width: 850px)').matches,
   drag: null,
   stageSize: [1, 1],
   cameraScale: 1,
@@ -185,11 +185,16 @@ function renderBubbles() {
   const sessions = sessionsAt(state.bundle, state.tick).filter(session => session.tick === state.tick).slice(-1);
   const positions = {};
   const timestamp = performance.now();
+  const stageWidth = $('stage').getBoundingClientRect().width || window.innerWidth;
+  const bubbleWidth = window.innerWidth <= 560 ? Math.min(232, Math.max(176, stageWidth - 24)) : 232;
+  const bubbleHalfPct = bubbleWidth / 2 / stageWidth * 100;
+  const safeMin = Math.max(9, bubbleHalfPct + 3);
+  const safeMax = Math.min(91, 100 - bubbleHalfPct - 3);
   layer.innerHTML = sessions.flatMap(session => session.turns.map((turn, turnIndex) => {
     const p = visualPointForActor(turn.actorId, timestamp);
     positions[turn.actorId] = (positions[turn.actorId] || 0) + 1;
     const offset = [(positions[turn.actorId] - 1) * 4, -19 - Math.min(turnIndex, 2) * 4];
-    const left = clamp(p[0] + offset[0], 9, 91);
+    const left = clamp(p[0] + offset[0], safeMin, safeMax);
     const top = clamp(p[1] + offset[1], 5, 72);
     return `<button class="speech" data-record="${esc(session.sourceRecordIds.at(-1))}" style="left:${left}%;top:${top}%"><strong>${esc(actorName(turn.actorId))}</strong><span class="speech-text">${esc(turn.text)}</span><small>${esc(session.title)} · ${esc(session.kind || '对话')} · ${sourceLinks(session.sourceRecordIds)}</small></button>`;
   })).join('');
@@ -558,15 +563,36 @@ function drawFallback(ctx, x, y, color, direction, action, frameWidth, frameHeig
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(direction, 1);
-  const bob = action === 'walk' ? -Math.abs(Math.sin(performance.now() / 90)) * 5 : 0;
+  const scale = Math.max(0.45, Math.min(1.4, Number(frameHeight || 90) / 104));
+  const bob = action === 'walk' ? -Math.abs(Math.sin(performance.now() / 90)) * 3 * scale : 0;
+  const w = Math.max(18, Number(frameWidth || 60) * 0.46);
+  const h = Math.max(30, Number(frameHeight || 104) * 0.72);
+  const head = Math.max(8, w * 0.38);
+  const torsoW = w * 0.64;
+  const torsoH = h * 0.44;
+  const legW = Math.max(5, w * 0.17);
+  const legH = h * 0.26;
   ctx.translate(0, bob);
+  ctx.imageSmoothingEnabled = false;
+  ctx.fillStyle = '#080b1380';
+  ctx.beginPath();
+  ctx.ellipse(0, 3 * scale, w * 0.38, Math.max(2, w * 0.12), 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#252b35';
+  ctx.fillRect(-legW - 2 * scale, -legH + 1, legW, legH);
+  ctx.fillRect(2 * scale, -legH + 1, legW, legH);
   ctx.fillStyle = color;
-  ctx.fillRect(-18, -104, 36, 52);
+  ctx.fillRect(-torsoW / 2, -legH - torsoH, torsoW, torsoH);
+  ctx.fillStyle = '#141d27';
+  ctx.fillRect(-torsoW / 2 - 2 * scale, -legH - torsoH + 4 * scale, 3 * scale, torsoH - 7 * scale);
   ctx.fillStyle = '#dec39b';
-  ctx.fillRect(-14, -124, 28, 24);
-  ctx.fillStyle = '#30383a';
-  ctx.fillRect(-16, -54, 14, 28);
-  ctx.fillRect(2, -54, 14, 28);
+  ctx.fillRect(-head / 2, -legH - torsoH - head - 3 * scale, head, head);
+  ctx.fillStyle = '#303944';
+  ctx.fillRect(-head / 2 - 1 * scale, -legH - torsoH - head - 4 * scale, head + 2 * scale, 3 * scale);
+  ctx.fillStyle = '#edc887';
+  ctx.fillRect(torsoW * 0.08, -legH - torsoH * 0.72, Math.max(2, 3 * scale), Math.max(4, torsoH * 0.36));
+  ctx.fillStyle = '#0e141c';
+  ctx.fillRect(-torsoW / 2 - 3 * scale, -legH - torsoH * 0.82, 3 * scale, torsoH * 0.58);
   ctx.restore();
 }
 function drawPulse(ctx, x, y, color, radius, alpha) {
@@ -620,7 +646,8 @@ function drawSceneCanvas(timestamp) {
     ctx.ellipse(x, feetY + 3, frameWidth * 0.27, frameWidth * 0.08, 0, 0, Math.PI * 2);
     ctx.fill();
     if (state.selectedActor === id) drawPulse(ctx, x, feetY - frameHeight * 0.45, '#edc887', frameWidth * 0.43, 0.55 + Math.sin(phase * 4) * 0.12);
-    const image = loadImage(actorImage(id));
+    const renderMode = sceneData.actors?.[id]?.renderMode || visualStyle.character?.mapRender || 'image';
+    const image = renderMode === 'image' ? loadImage(actorImage(id)) : null;
     ctx.translate(x, feetY + bob);
     ctx.scale(direction, 1);
     ctx.rotate(tilt);
@@ -628,7 +655,7 @@ function drawSceneCanvas(timestamp) {
       ctx.imageSmoothingEnabled = true;
       ctx.drawImage(image, -frameWidth / 2, -frameHeight, frameWidth, frameHeight);
     } else {
-      drawFallback(ctx, 0, 0, fallbackColors[Math.abs(id.length) % fallbackColors.length], 1, action, frameWidth, frameHeight);
+      drawFallback(ctx, 0, 0, sceneData.actors?.[id]?.accent || fallbackColors[Math.abs(id.length) % fallbackColors.length], 1, action, frameWidth, frameHeight);
     }
     ctx.restore();
     if (action === 'talk') drawPulse(ctx, x, feetY - frameHeight * 0.92, '#7ed5bd', frameWidth * 0.15 + Math.sin(phase * 6) * 3, 0.3);

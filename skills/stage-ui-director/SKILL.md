@@ -53,6 +53,36 @@ Make the map the primary surface. Panels explain the selected context; they do n
 - Treat `prefers-reduced-motion` as a presentation change only. Preserve state, text, and source links.
 - Keep the offline path functional. A missing visual asset gets a diagnostic and fallback, not a missing actor.
 
+## v0.4 reusable visual contract
+
+For a visual rebuild, apply [`../world-stage/references/visual-production-contract.v0.4.md`](../world-stage/references/visual-production-contract.v0.4.md) before changing components. This keeps the visual direction reusable across worlds and prevents a one-off screenshot from becoming an undocumented layout fork.
+
+The v0.4 hierarchy is:
+
+1. **Map and actors:** the map occupies at least 68% of the desktop workspace and uses one orthographic/top-down 2.5D camera. Gameplay sprites are small, grounded, and readable against lanes and building mass.
+2. **Event signal:** the current event, route, dialogue bubble, or resource delta receives a restrained semantic highlight. A highlight must point to replay data; it cannot invent a state.
+3. **Context drawer:** one world, actor, or event context is open by default. Portraits belong here; a large portrait must never be placed directly on the map as a gameplay sprite.
+4. **Replay controls:** timeline and pause/step controls remain reachable when the drawer collapses or becomes a narrow-screen overlay.
+
+### v0.4 layout rules
+
+Declare map ratio, drawer max width, timeline safe area, target viewports, focus modes, and narrow-screen behavior in `visuals/layout.v0.4.json`. The drawer is at most 374 CSS px (or 30% of the workspace) on desktop. At narrow widths it overlays the map inside 92vw, uses safe-area padding, and must satisfy:
+
+```js
+document.documentElement.scrollWidth <= window.innerWidth
+document.body.scrollWidth <= window.innerWidth
+```
+
+Keep labels, bubbles, route cues, and controls in flow-based or normalized containers. When the panel is collapsed, the map, space labels, actor selection, and replay controls still need a visible keyboard/mouse/touch path. Avoid introducing a second navigation system just for mobile.
+
+### v0.4 acceptance sequence
+
+1. Capture the existing stage at desktop and narrow target viewports.
+2. Update the style/layout contracts and visual roles before replacing art.
+3. Wire `world`, `actor`, and `event` focus to replay frame data; verify long names, long event text, resource values, and missing assets.
+4. Capture the same replay state matrix with `stage-visual-qa`, including movement, dialogue, collapsed, missing-asset, and reduced-motion states.
+5. Promote the visual contract only when map dominance, actor grounding, bubble/label overlap, text fit, keyboard focus, and narrow overflow checks pass. Keep unresolved art debt in the report rather than hiding it with a screenshot crop.
+
 ## Deliverable
 
-Return the changed files, the layout/style contract, states covered, target viewport captures, overlap/text-fit findings, accessibility checks, and known limitations. A polished screenshot without a replay-state check is incomplete.
+Return the changed files, the layout/style contract version, asset role changes, states covered, target viewport captures, overlap/text-fit findings, accessibility checks, and known limitations. A polished screenshot without a replay-state check is incomplete.
