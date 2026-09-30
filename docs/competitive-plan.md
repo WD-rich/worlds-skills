@@ -65,6 +65,7 @@ observe → perceive → propose → validate → apply → remember → narrate
 | 地图资产 | `scene-painter` | 基图、区域图层、可行走 mask、网格、视觉审查 | 有图时更好看，无图时仍可运行 |
 | 角色设定 | `cast-forger` | profile/state/关系/库存 | 每个角色可执行、可观察、可定位 |
 | 角色资产 | `sprite-forger` | spritesheet、方向、动画、透明背景、fallback | 角色 ID 与资产一一对应 |
+| 素材生产图 | `asset-pipeline-director` | 多步骤素材编排、结果导入、预算、哈希、回退和预览 | 同一份素材图可离线复跑，Provider 可替换 |
 | 感知和行动 | `agent-cognition` | 可见上下文、需求、情绪、行动菜单 | 不泄露隐藏信息，意图可解释 |
 | 时间步 | `life-director` | 调度、状态迁移、日夜循环 | 事件可回放，非法动作被拒绝 |
 | 对话 | `dialogue-director` | 会话、回合、关系/情绪/记忆影响 | 正式对话与沙盒隔离 |
@@ -109,6 +110,7 @@ observe → perceive → propose → validate → apply → remember → narrate
 - 地图和角色资产支持生成、审查、替换和版本化；
 - 支持中英文文案和无障碍文本层；
 - 运行状态、Provider 失败、资源缺失和回放错误都可见。
+- 素材工作流能输出版本化包和 HTML 预览，在线 Provider 缺失时不阻塞舞台。
 
 ### P3：十倍规模运行
 

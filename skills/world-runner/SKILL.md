@@ -17,3 +17,5 @@ Use this skill for workspace setup, provider diagnostics, world creation jobs, h
 6. run audit and replay checks before reporting success.
 
 Support offline deterministic mode, Codex mode, local/HTTP model mode, and asset-optional mode. A failed startup or cancelled job must leave the source world and prior snapshots intact. Keep credentials outside source control and report the selected provider, model capability, world identity, job ID, checkpoint, and diagnostics.
+
+An asset pipeline is a presentation job, not a world-state transaction. When a run requests one, validate and execute it before building the stage; publish only a complete versioned export under `visuals/` or `reports/`. A blocked provider node must preserve the previous approved asset and keep headless simulation runnable.

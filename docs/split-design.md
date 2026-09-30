@@ -34,6 +34,10 @@
 
 输入 `ActorProfile` 和视觉约束；输出透明 spritesheet、方向/动画元数据和稳定的 `AssetRef`。它不修改角色状态，也不能因为单个图片任务失败而删除角色。
 
+### `asset-pipeline-director`
+
+输入 brief、已批准的地图/角色素材、目标平台预算和可选 Provider 结果；输出版本化素材节点图、导出包、哈希、回退标记、技术检查和 HTML 预览。它负责素材生产的编排与可复现性，不负责世界拓扑、角色状态、事件或对话。Codex 负责规划和本地审查；Atlas、图片、3D 或视频 Provider 只通过 `result.ref` 或独立适配器接入，不能成为运行世界的前置条件。
+
 ## 认知与运行
 
 ### `agent-cognition`
@@ -85,6 +89,7 @@ world-conceiver
   → contract-keeper + world-audit
   → atlas-builder + cast-forger
   → scene-painter + sprite-forger（可选）
+  → asset-pipeline-director（可选，编排/加工/发布素材）
   → 初始快照
   → agent-cognition + life-director + dialogue-director
   → memory-weaver + story-chronicler

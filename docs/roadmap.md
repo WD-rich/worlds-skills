@@ -41,6 +41,13 @@
 - 让 `scene-painter` 和 `sprite-forger` 输出层级、锚点、动作和回退契约；
 - 视觉质量检查继续保持离线可运行，不要求任何模型 Key。
 
+## M4.6：素材生产图
+
+- 增加 `asset-pipeline-director`，把 brief、参考图、图片/3D 加工、导出和验收组织成有版本的节点图；
+- 提供本地可执行节点、显式 `result.ref` 导入、哈希、预算、HTML 预览和失败不发布机制；
+- 保留 Atlas 以及其他图片/3D Provider 的适配边界，基线运行不需要第三方 Key；
+- 让 `scene-painter`、`sprite-forger`、`world-audit` 和 `stage-visual-qa` 消费同一份导出报告。
+
 ## M5：规模扩展
 
 - 用同一套契约和回放工具扩展到十倍空间、角色和时间步；

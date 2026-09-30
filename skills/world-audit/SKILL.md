@@ -13,6 +13,7 @@ Use this skill before committing generated artifacts, before running a new world
 - references between settings, spaces, actors, relations, assets, actions, dialogue sessions, timelines, and records;
 - reciprocal connected space graph, legal locations, occupancy, capacity, hazards, and resource bounds;
 - asset dimensions, actor mappings, fallback coverage, and optional image/vision diagnostics;
+- asset pipeline reports: graph version, input/output hashes, declared budgets, provider provenance, export conflicts, review status, and whether any output is only a plan or fallback;
 - append-only records, provider/cost metadata, snapshot hashes, checkpoint lineage, and rejected intents;
 - deterministic replay from the initial snapshot through a bounded event prefix;
 - credential exposure, malformed provider output, cancelled jobs, and stale locks.

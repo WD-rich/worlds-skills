@@ -11,6 +11,7 @@
 | 地图美术 | 地图描述、空间图 | 背景图、区域图层、可行走网格 | `scene-painter` | M3 |
 | 角色设定 | 世界规则、空间图 | profile、state、关系、库存 | `cast-forger` | M1 |
 | 角色美术 | 角色 profile、视觉约束 | spritesheet、透明图、动画元数据 | `sprite-forger` | M3 |
+| 素材生产编排 | brief、地图、角色、素材 Provider | 版本化节点图、哈希导出、回退与预览报告 | `asset-pipeline-director` | M4.5 |
 | 感知与决策 | 快照、记忆、可见上下文 | perception、action menu、intent | `agent-cognition` | M2 |
 | 时间步运行 | 合法 intent、规则 | 事件、状态迁移、快照 | `life-director` | M2 |
 | 对话会话 | 参与者、关系、上下文 | dialogue session、turn、情绪影响 | `dialogue-director` | M2 |

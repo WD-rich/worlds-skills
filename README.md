@@ -25,6 +25,7 @@
 | `scene-painter` | 生成地图视觉资产、图层、网格并审查 | 地图资产、可行走网格、资产清单 |
 | `cast-forger` | 创建角色设定、关系和初始状态 | 角色档案、角色状态 |
 | `sprite-forger` | 生成角色图片、透明图和动画元数据 | spritesheet、`AssetRef` |
+| `asset-pipeline-director` | 把 brief、地图、角色和外部 Provider 串成可复用、可审查的素材生产图 | 版本化 pipeline、导出包、哈希和诊断 |
 | `agent-cognition` | 生成感知、需求、情绪、行动菜单和候选意图 | `Perception`、`ActionMenu`、`Intent` |
 | `world-audit` | 检查契约、引用、规则和回放能力 | 结构化诊断报告 |
 | `life-director` | 推进时间并产生合法行动和事件 | 事件记录、状态快照 |

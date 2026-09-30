@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "asset-pipeline/v0.1",
+  "pipelineId": "ashfall-character-pack",
+  "version": 1,
+  "orchestrator": "codex",
+  "inputs": [
+    {"id": "actor-profile", "kind": "actor", "ref": "content/actors/actor-yara-quell.json"},
+    {"id": "style-guide", "kind": "brief", "ref": "visuals/style.v0.3.json"}
+  ],
+  "nodes": [
+    {"id": "brief-normalize", "kind": "json.bundle", "in": ["actor-profile", "style-guide"], "out": ["asset-brief"], "capability": "reasoning", "provider": "local", "settings": {"target": "character-brief"}},
+    {"id": "concept", "kind": "image.generate", "in": ["asset-brief"], "out": ["concept-image"], "capability": "image", "provider": "atlas", "model": "image-provider-selected-by-atlas", "settings": {"aspect": "1:1", "seed": 740219}, "optional": true, "fallback": "copy-approved"},
+    {"id": "sprite-pack", "kind": "asset.copy", "in": ["actor-profile"], "out": ["actor-sprite"], "capability": "image-processing", "provider": "local", "settings": {"anchor": "feet", "actions": ["idle", "walk", "talk", "interact"]}},
+    {"id": "review", "kind": "json.bundle", "in": ["actor-sprite"], "out": ["review-report"], "capability": "visual-review", "provider": "local", "settings": {"checks": ["identity", "style", "bounds", "anchor", "runtimeFallback"]}}
+  ],
+  "outputs": [
+    {"id": "actor-sprite", "slot": "sprite", "consumer": "sprite-forger"},
+    {"id": "review-report", "slot": "review", "consumer": "world-audit"}
+  ],
+  "review": {"required": ["identity", "style", "bounds", "anchor", "runtimeFallback"]}
+}

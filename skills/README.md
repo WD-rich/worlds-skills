@@ -11,6 +11,7 @@
 - `scene-painter/`
 - `cast-forger/`
 - `sprite-forger/`
+- `asset-pipeline-director/`
 - `agent-cognition/`
 - `world-audit/`
 - `life-director/`

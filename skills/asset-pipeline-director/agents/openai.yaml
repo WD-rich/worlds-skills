@@ -1,0 +1,4 @@
+interface:
+  display_name: "Asset Pipeline Director"
+  short_description: "Design repeatable game asset workflows"
+  default_prompt: "Use $asset-pipeline-director to turn a world brief into a versioned, provider-neutral asset pipeline with reviewable exports."
