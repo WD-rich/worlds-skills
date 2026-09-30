@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#10111c"><title>世界舞台</title><link rel="icon" href="data:,"><link rel="stylesheet" href="stage.css"><link rel="stylesheet" href="stage-v03.css"><link rel="stylesheet" href="stage-v04.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#10111c"><title>世界舞台</title><link rel="icon" href="data:,"><link rel="stylesheet" href="stage.css"><link rel="stylesheet" href="stage-v03.css"><link rel="stylesheet" href="stage-v04.css"><link rel="stylesheet" href="stage-v05.css"></head>
 <body>
 <div class="app" id="app">
   <header class="header">
@@ -11,7 +11,7 @@
   <nav class="toolbar" aria-label="世界操作">
     <div class="focus-switch" role="tablist" aria-label="舞台聚焦"><button id="focusWorld" role="tab" data-focus-mode="world" aria-selected="true">◉ 世界</button><button id="focusActor" role="tab" data-focus-mode="actor" aria-selected="false">◇ 角色</button><button id="focusEvent" role="tab" data-focus-mode="event" aria-selected="false">≋ 事件</button></div>
     <div class="toolbar-separator"></div><span class="toolbar-label">时间线</span><select id="branchSelect" aria-label="选择时间线"><option value="main">主时间线 · 5 步存档</option></select><button class="button subtle" id="branchBtn">＋ 新时间线</button><span id="modeBadge" class="mode-badge">存档回放</span>
-    <div class="flex"></div><button class="button subtle" id="logBtn">☷ 事件日志</button><button class="button subtle" id="godBtn">✧ 上帝干预</button><button class="button subtle" id="chatBtn">◌ 沙盒对话</button><button class="button subtle" id="exportBtn">↓ 导出</button><button class="button subtle panel-toggle" id="panelToggle" aria-label="展开聚焦面板">聚焦 ▤</button>
+    <div class="flex"></div><button class="button subtle" id="exploreBtn">⌖ 漫游</button><button class="button subtle" id="logBtn">☷ 事件日志</button><button class="button subtle" id="godBtn">✧ 上帝干预</button><button class="button subtle" id="chatBtn">◌ 沙盒对话</button><button class="button subtle" id="exportBtn">↓ 导出</button><button class="button subtle panel-toggle" id="panelToggle" aria-label="展开聚焦面板">聚焦 ▤</button>
   </nav>
   <main class="workspace" id="workspace">
     <section class="stage" id="stage" aria-label="世界地图，可拖拽和缩放" tabindex="0">

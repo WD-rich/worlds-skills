@@ -40,7 +40,12 @@ const importAsset = async (ref) => {
   return `assets/${basename(source)}`;
 };
 bundle.scene.map.image = await importAsset(bundle.scene.map.image);
-for (const asset of Object.values(bundle.scene.actors)) asset.image = await importAsset(asset.image);
-for (const file of ['index.html','stage.css','stage-v03.css','stage-v04.css','stage.mjs','engine.mjs']) await cp(join(skillRoot,'skills/world-stage/assets/stage',file),join(out,file));
+for (const asset of Object.values(bundle.scene.actors || {})) {
+  asset.image = await importAsset(asset.image);
+  asset.portrait = await importAsset(asset.portrait);
+}
+if (typeof bundle.scene.navigation === 'string') bundle.scene.navigation = await importAsset(bundle.scene.navigation);
+for (const prop of bundle.scene.foregroundProps || []) prop.image = await importAsset(prop.image);
+for (const file of ['index.html','stage.css','stage-v03.css','stage-v04.css','stage-v05.css','motion.mjs','stage.mjs','engine.mjs']) await cp(join(skillRoot,'skills/world-stage/assets/stage',file),join(out,file));
 await writeFile(join(out,'world.json'),JSON.stringify(bundle,null,2)+'\n');
 console.log(JSON.stringify({out,actors:actors.length,spaces:bundle.spaces.length,ticks:Math.max(...bundle.records.map(r=>r.gameTime.tick)),dialogues:bundle.dialogues.length,memories:bundle.memories.length,provider:'recorded / local-rules'},null,2));

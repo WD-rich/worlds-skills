@@ -1,4 +1,5 @@
 import {frameAt, sessionsAt, memoriesAt, routeBetween, pointOnPath, makeIntervention, sandboxReply, validateBundle} from './engine.mjs';
+import {findPath, samplePath, pathLength, directionOf} from './motion.mjs';
 
 const $ = id => document.getElementById(id);
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -23,6 +24,7 @@ const state = {
   showPaths: false,
   panelCollapsed: window.matchMedia('(max-width: 850px)').matches,
   drag: null,
+  dragMoved: false,
   stageSize: [1, 1],
   cameraScale: 1,
   chat: [],
@@ -30,6 +32,10 @@ const state = {
   transition: null,
   imageCache: new Map(),
   imageErrors: new Set(),
+  freeMoves: new Map(),
+  roamMode: false,
+  nav: null,
+  lastFrameTime: null,
 };
 
 const fallbackColors = ['#c98c5b', '#6eb2a4', '#bd9b63', '#91a8bf'];
@@ -38,6 +44,11 @@ async function getBundle() {
   const response = await fetch(path);
   if (!response.ok) throw new Error(`无法载入 ${path}`);
   const bundle = await response.json();
+  if (typeof bundle.scene?.navigation === 'string') {
+    const navResponse = await fetch(bundle.scene.navigation);
+    if (!navResponse.ok) throw new Error(`无法载入导航数据 ${bundle.scene.navigation}`);
+    bundle.scene.navigationData = await navResponse.json();
+  }
   validateBundle(bundle);
   return bundle;
 }
@@ -72,17 +83,34 @@ function notify(message) {
   notify.timer = setTimeout(() => toast.classList.remove('show'), 2400);
 }
 function actorImage(id) { return scene().actors?.[id]?.image || ''; }
+function actorPortrait(id) { return scene().actors?.[id]?.portrait || actorImage(id); }
+function actorSpriteMeta(id) { return animationManifest().actors?.[id] || {}; }
 function mapSize() { return scene().map.size || [1, 1]; }
 function pctToPixels(point) { const [w, h] = mapSize(); return [point[0] / 100 * w, point[1] / 100 * h]; }
 function pointToStyle(point) { return `left:${point[0]}%;top:${point[1]}%`; }
 function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 function easeInOut(value) { return value < 0.5 ? 2 * value * value : 1 - ((-2 * value + 2) ** 2) / 2; }
+function percentToPixel(point) { const [w,h] = mapSize(); return [point[0] / 100 * w, point[1] / 100 * h]; }
+function pixelToPercent(point) { const [w,h] = mapSize(); return [point[0] / w * 100, point[1] / h * 100]; }
+function navigation() { return state.nav || scene().navigationData || null; }
+function freeMoveFor(id) { return state.freeMoves.get(id); }
+function freeMovePoint(id, timestamp = performance.now()) {
+  const move = freeMoveFor(id);
+  if (!move) return null;
+  const sample = samplePath(move.path, move.travel);
+  if (!sample) return null;
+  move.direction = sample.direction || move.direction;
+  return pixelToPercent(sample.point);
+}
 
 function scaleCamera() {
   const rect = $('stage').getBoundingClientRect();
   const [width, height] = mapSize();
   state.stageSize = [rect.width, rect.height];
   state.cameraScale = Math.max(rect.width / width, rect.height / height) * state.zoom;
+  const overflowX = Math.max(0, width * state.cameraScale - rect.width);
+  const overflowY = Math.max(0, height * state.cameraScale - rect.height);
+  state.pan = [clamp(state.pan[0], -overflowX / 2, overflowX / 2), clamp(state.pan[1], -overflowY / 2, overflowY / 2)];
   const camera = $('camera');
   camera.style.width = `${width}px`;
   camera.style.height = `${height}px`;
@@ -113,23 +141,28 @@ function isMovingInTransition(id) {
 function visualPointForActor(id, timestamp = performance.now()) {
   const target = state.frame?.actors?.[id];
   if (!target) return [50, 50];
+  const free = freeMovePoint(id, timestamp);
+  if (free) return free;
   const from = state.transition?.fromFrame?.actors?.[id];
   if (!from || from.locationId === target.locationId) return spacePoint(target.locationId);
   const route = routeBetween(scene(), from.locationId, target.locationId);
   return pointOnPath(route, transitionAlpha(timestamp)) || spacePoint(target.locationId);
 }
 function visualDirectionForActor(id, timestamp = performance.now()) {
+  const free = freeMoveFor(id);
+  if (free) return free.direction || 'south';
   const from = state.transition?.fromFrame?.actors?.[id];
   const to = state.frame?.actors?.[id];
-  if (!from || !to || from.locationId === to.locationId) return 1;
+  if (!from || !to || from.locationId === to.locationId) return 'south';
   const a = spacePoint(from.locationId);
   const b = visualPointForActor(id, timestamp);
-  return b[0] < a[0] ? -1 : 1;
+  return directionOf(percentToPixel(a), percentToPixel(b));
 }
 function eventAtCurrentTick(types, id) {
   return records().some(record => Number(record.gameTime?.tick || 0) === state.tick && types.includes(record.type) && (!id || record.actorIds?.includes(id)));
 }
 function visualActionForActor(id) {
+  if (freeMoveFor(id)) return 'walk';
   if (isMovingInTransition(id)) return 'walk';
   const sessions = sessionsAt(state.bundle, state.tick).filter(s => s.actorIds?.includes(id) && s.tick === state.tick);
   if (sessions.length || eventAtCurrentTick(['signal.emitted', 'signal.decoded'], id)) return 'talk';
@@ -210,10 +243,10 @@ function renderHeader() {
   $('weather').textContent = clock.period || '世界时钟';
   $('chapterLabel').textContent = cue.label || `TIMELINE · T${state.tick}`;
   $('chapterTitle').textContent = cue.title || state.bundle.setting.title || '世界舞台';
-  $('sceneStatus').textContent = `OFFLINE REPLAY · PROCEDURAL MOTION · T${state.tick}${state.imageErrors.size ? ` · ${state.imageErrors.size} ASSET ERROR` : ''}`;
+  $('sceneStatus').textContent = `${state.roamMode ? 'FREE ROAM · PRESENTATION ONLY' : 'OFFLINE REPLAY'} · CINEMATIC 2.5D · T${state.tick}${state.imageErrors.size ? ` · ${state.imageErrors.size} ASSET ERROR` : ''}`;
   $('runStatus').textContent = state.playing ? '运行中' : (state.branch ? '分支回放' : '已暂停');
   $('runStatus').classList.toggle('playing', state.playing);
-  $('modeBadge').textContent = state.branch ? `分支回放 · ${state.branch.title}` : '离线存档回放';
+  $('modeBadge').textContent = state.roamMode ? '临时漫游 · 不写入事实' : (state.branch ? `分支回放 · ${state.branch.title}` : '离线存档回放');
   $('tickLabel').textContent = state.tick ? `第 ${state.tick} 步 · ${fmtTime(clock.time)}` : '初始时刻';
   $('recordCount').textContent = `${records().length} 条事件`;
   $('endTime').textContent = fmtTime(state.bundle.records.at(-1)?.gameTime?.time);
@@ -244,7 +277,7 @@ function renderSidebar() {
   $('actorCount').textContent = `${state.bundle.actors.length} 位居民`;
   $('actorList').innerHTML = state.bundle.actors.map(actorProfile => {
     const runtime = state.frame.actors[actorProfile.id] || actorProfile.state;
-    const image = actorImage(actorProfile.id);
+    const image = actorPortrait(actorProfile.id);
     return `<button class="actor-row${state.selectedActor === actorProfile.id ? ' selected' : ''}" data-actor="${esc(actorProfile.id)}"><span class="avatar">${image ? `<img src="${esc(image)}" alt="">` : ''}</span><span><strong>${esc(actorProfile.name)} · ${esc(actorProfile.callsign)}</strong><small>${esc(space(runtime.locationId)?.name || runtime.locationId)} · ${esc(runtime.activity || '待命')}</small></span><i class="activity-dot${runtime.condition === 'critical' || runtime.condition === 'strained' ? ' warn' : ''}"></i></button>`;
   }).join('');
   $('actorList').querySelectorAll('[data-actor]').forEach(el => el.addEventListener('click', () => selectActor(el.dataset.actor)));
@@ -298,7 +331,7 @@ function renderEventCue() {
 function renderProfile() {
   const profile = actor(state.selectedActor) || state.bundle.actors[0];
   const runtime = state.frame.actors[profile.id] || profile.state || {};
-  const image = actorImage(profile.id);
+  const image = actorPortrait(profile.id);
   const action = visualActionForActor(profile.id);
   $('profile').innerHTML = `<div class="profile-head"><div class="portrait">${image ? `<img src="${esc(image)}" alt="${esc(profile.name)}">` : ''}</div><div><h3>${esc(profile.name)}</h3><span class="callsign">${esc(profile.callsign)} · ${esc(profile.role)}</span></div><div class="profile-actions"><button data-follow="${esc(profile.id)}" class="${state.follow === profile.id ? 'follow-active' : ''}">${state.follow === profile.id ? '跟随中' : '跟随'}</button><button data-focus="${esc(runtime.locationId)}">定位</button></div></div><p class="profile-premise">${esc(profile.profile?.premise || '')}</p><div class="location-line">⌖ ${esc(space(runtime.locationId)?.name || runtime.locationId)} · ${esc(runtime.activity || '待命')} · ${esc(action)}</div><div class="needs">${Object.entries(runtime.needs || {}).map(([key, value]) => `<span class="need"><span>${esc(key)}</span><span class="bar"><i style="width:${clamp(value, 0, 100)}%"></i></span><b>${value}</b></span>`).join('')}</div><div class="block-label"><span>库存</span><span>${(runtime.inventory || []).length} 项</span></div><div class="inventory">${(runtime.inventory || []).map(value => `<span>${esc(value)}</span>`).join('') || '<span class="empty">空</span>'}</div>`;
   $('profile').querySelector('[data-follow]')?.addEventListener('click', () => { state.follow = state.follow === profile.id ? null : profile.id; notify(state.follow ? '镜头将跟随该角色' : '已停止跟随'); renderProfile(); });
@@ -344,7 +377,8 @@ function renderTimeline() {
 
 function renderMini() {
   $('miniImage').src = state.bundle.scene.map.image;
-  $('miniActors').innerHTML = Object.entries(state.frame.actors).map(([id]) => `<i class="mini-actor" data-actor="${esc(id)}" style="${pointToStyle(spacePoint(state.frame.actors[id].locationId))}"></i>`).join('');
+  const timestamp = performance.now();
+  $('miniActors').innerHTML = Object.entries(state.frame.actors).map(([id]) => `<i class="mini-actor" data-actor="${esc(id)}" style="${pointToStyle(visualPointForActor(id, timestamp))}"></i>`).join('');
   const [mapWidth, mapHeight] = mapSize();
   const width = Math.min(100, state.stageSize[0] / (mapWidth * state.cameraScale) * 100);
   const height = Math.min(100, state.stageSize[1] / (mapHeight * state.cameraScale) * 100);
@@ -380,6 +414,8 @@ function render() {
   renderMini();
   $('workspace').classList.toggle('collapsed', state.panelCollapsed);
   $('stage').classList.toggle('show-paths', state.showPaths);
+  $('exploreBtn').textContent = state.roamMode ? '■ 退出漫游' : '⌖ 漫游';
+  $('exploreBtn').classList.toggle('primary', state.roamMode);
   $('zoomValue').textContent = `${Math.round(state.zoom * 100)}%`;
   $('pathsBtn').setAttribute('aria-pressed', String(state.showPaths));
   $('playBtn').textContent = state.playing ? 'Ⅱ' : '▶';
@@ -458,6 +494,37 @@ function focusSpace(id) {
   renderMini();
 }
 function focusActor(id) { const runtime = state.frame.actors[id]; if (runtime) focusSpace(runtime.locationId); }
+
+function toggleRoam() {
+  state.roamMode = !state.roamMode;
+  if (!state.roamMode) state.freeMoves.clear();
+  render();
+  notify(state.roamMode ? '漫游已开启：选择角色后点击可走地面' : '已回到存档回放，临时移动已清除');
+}
+
+function startFreeMove(point) {
+  if (!state.roamMode || !state.selectedActor) return;
+  const nav = navigation();
+  if (!nav) { notify('当前切片没有导航网格'); return; }
+  const current = visualPointForActor(state.selectedActor);
+  const from = percentToPixel(current);
+  const path = findPath(nav, from, point);
+  if (path.length < 2) { notify('这块地面不可通行，请选择中央道路'); return; }
+  const move = {actorId: state.selectedActor, path, travel: 0, total: pathLength(path), direction: directionOf(path[0], path[1]), started: performance.now()};
+  state.freeMoves.set(state.selectedActor, move);
+  state.selectedSpace = null;
+  renderActors();
+  notify(`${actorName(state.selectedActor)} 开始漫游（不写入世界事实）`);
+}
+
+function stagePointFromEvent(event) {
+  const rect = $('stage').getBoundingClientRect();
+  const [mapWidth,mapHeight] = mapSize();
+  const scale = state.cameraScale || 1;
+  const originX = (rect.width - mapWidth * scale) / 2 + state.pan[0];
+  const originY = (rect.height - mapHeight * scale) / 2 + state.pan[1];
+  return [(event.clientX - rect.left - originX) / scale, (event.clientY - rect.top - originY) / scale];
+}
 
 function showRecord(id) {
   const record = recordById(id);
@@ -605,6 +672,22 @@ function drawPulse(ctx, x, y, color, radius, alpha) {
   ctx.stroke();
   ctx.restore();
 }
+function drawSpriteSheet(ctx, image, meta, direction, action, timestamp, travel) {
+  const columns = Number(meta.columns || 4);
+  const rows = Number(meta.rows || 4);
+  const row = Math.max(0, (meta.directions || ['south','west','east','north']).indexOf(direction));
+  const moving = action === 'walk';
+  const cycle = moving ? Math.floor((travel || timestamp / 1000 * 140) / Number(meta.stridePx || 18)) % columns : (action === 'talk' ? Math.floor(timestamp / 260) % 2 : 0);
+  const col = Math.max(0, Math.min(columns - 1, cycle));
+  const sx = image.naturalWidth / columns * col;
+  const sy = image.naturalHeight / rows * row;
+  const sw = image.naturalWidth / columns;
+  const sh = image.naturalHeight / rows;
+  const [drawWidth, drawHeight] = meta.drawSize || [118, 132];
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(image, sx, sy, sw, sh, -drawWidth / 2, -drawHeight, drawWidth, drawHeight);
+  return [drawWidth, drawHeight];
+}
 function drawSceneCanvas(timestamp) {
   const canvas = $('sceneCanvas');
   if (!canvas || !state.bundle || !state.frame) return;
@@ -637,8 +720,11 @@ function drawSceneCanvas(timestamp) {
     if (action === 'walk') bob = -Math.abs(Math.sin(cycle + id.length)) * amplitude;
     else bob = Math.sin(cycle + id.length) * amplitude;
     tilt = Math.sin(cycle) * Number(motion.tiltRad || 0);
-    const frameWidth = Number(animationManifest().defaultFrameSize?.[0] || 120) * Number(sceneData.actors?.[id]?.scale || 1);
-    const frameHeight = Number(animationManifest().defaultFrameSize?.[1] || 180) * Number(sceneData.actors?.[id]?.scale || 1);
+    const meta = actorSpriteMeta(id);
+    const frameWidth = Number(meta.drawSize?.[0] || animationManifest().defaultFrameSize?.[0] || 120) * Number(sceneData.actors?.[id]?.scale || 1);
+    const frameHeight = Number(meta.drawSize?.[1] || animationManifest().defaultFrameSize?.[1] || 132) * Number(sceneData.actors?.[id]?.scale || 1);
+    const move = freeMoveFor(id);
+    const travel = move?.travel || (isMovingInTransition(id) ? transitionAlpha(timestamp) * 120 : timestamp / 1000 * 100);
     ctx.save();
     ctx.globalAlpha = value.available === false ? 0.78 : 1;
     ctx.fillStyle = '#080b1359';
@@ -647,14 +733,19 @@ function drawSceneCanvas(timestamp) {
     ctx.fill();
     if (state.selectedActor === id) drawPulse(ctx, x, feetY - frameHeight * 0.45, '#edc887', frameWidth * 0.43, 0.55 + Math.sin(phase * 4) * 0.12);
     const renderMode = sceneData.actors?.[id]?.renderMode || visualStyle.character?.mapRender || 'image';
-    const image = renderMode === 'image' ? loadImage(actorImage(id)) : null;
+    const image = renderMode === 'spritesheet' ? loadImage(actorImage(id)) : renderMode === 'image' ? loadImage(actorImage(id)) : null;
     ctx.translate(x, feetY + bob);
-    ctx.scale(direction, 1);
     ctx.rotate(tilt);
-    if (image && image.complete && image.naturalWidth) {
+    let drawn = false;
+    if (image && image.complete && image.naturalWidth && renderMode === 'spritesheet') {
+      drawSpriteSheet(ctx, image, {...meta, drawSize:[frameWidth,frameHeight]}, direction, action, timestamp, travel);
+      drawn = true;
+    } else if (image && image.complete && image.naturalWidth && renderMode === 'image') {
       ctx.imageSmoothingEnabled = true;
       ctx.drawImage(image, -frameWidth / 2, -frameHeight, frameWidth, frameHeight);
-    } else {
+      drawn = true;
+    }
+    if (!drawn) {
       drawFallback(ctx, 0, 0, sceneData.actors?.[id]?.accent || fallbackColors[Math.abs(id.length) % fallbackColors.length], 1, action, frameWidth, frameHeight);
     }
     ctx.restore();
@@ -671,6 +762,13 @@ function drawSceneCanvas(timestamp) {
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, Math.PI * 2);
     ctx.fill();
+  }
+  for (const prop of sceneData.foregroundProps || []) {
+    const image = loadImage(prop.image);
+    if (!image?.complete || !image.naturalWidth) continue;
+    const [x,y] = pctToPixels(prop.point || [50,50]);
+    const [w,h] = prop.size || [120,140];
+    ctx.drawImage(image,x-w/2,y-h,w,h);
   }
   for (const effect of sceneData.effects || []) {
     if (effect.tick !== state.tick || effect.kind !== 'pulse') continue;
@@ -701,6 +799,7 @@ function setup() {
   $('godBtn').addEventListener('click', interventionModal);
   $('chatBtn').addEventListener('click', chatModal);
   $('exportBtn').addEventListener('click', exportBundle);
+  $('exploreBtn').addEventListener('click', toggleRoam);
   $('aboutBtn').addEventListener('click', () => openModal('世界档案', 'WORLD CONCEIVER', `<p class="world-premise">${esc(state.bundle.setting.premise || state.bundle.setting.elevatorPitch)}</p><h3>物理规则</h3><p>${(state.bundle.setting.physicalRules || []).map(esc).join('<br>')}</p><h3>冲突轴</h3><p>${(state.bundle.setting.conflictAxes || []).map(esc).join('<br>')}</p>`));
   $('logBtn').addEventListener('click', () => setFocusMode('event'));
   $('closeModal').addEventListener('click', closeModal);
@@ -708,9 +807,10 @@ function setup() {
   document.querySelectorAll('[data-tab]').forEach(button => button.addEventListener('click', () => { state.tab = button.dataset.tab; document.querySelectorAll('[data-tab]').forEach(tab => tab.setAttribute('aria-selected', String(tab === button))); renderDetail(); }));
   $('dialogueDock').addEventListener('click', () => { const session = sessionsAt(state.bundle, state.tick).at(-1); if (session) showRecord(session.sourceRecordIds.at(-1)); else notify('当前时刻还没有正式对话'); });
   $('minimap').addEventListener('click', event => { const rect = $('minimap').getBoundingClientRect(); const point = [(event.clientX - rect.left) / rect.width * 100, (event.clientY - rect.top) / rect.height * 100]; const [width, height] = mapSize(); state.pan = [(0.5 - point[0] / 100) * width * state.cameraScale, (0.5 - point[1] / 100) * height * state.cameraScale]; scaleCamera(); renderMini(); });
-  $('stage').addEventListener('pointerdown', event => { if (event.target.closest('button,select,input,dialog')) return; state.drag = {x: event.clientX, y: event.clientY, pan: [...state.pan]}; $('stage').setPointerCapture(event.pointerId); });
-  $('stage').addEventListener('pointermove', event => { if (!state.drag) return; state.pan = [state.drag.pan[0] + event.clientX - state.drag.x, state.drag.pan[1] + event.clientY - state.drag.y]; scaleCamera(); renderMini(); });
+  $('stage').addEventListener('pointerdown', event => { if (event.target.closest('button,select,input,dialog')) return; state.dragMoved = false; state.drag = {x: event.clientX, y: event.clientY, pan: [...state.pan]}; $('stage').setPointerCapture(event.pointerId); });
+  $('stage').addEventListener('pointermove', event => { if (!state.drag) return; if (Math.hypot(event.clientX - state.drag.x, event.clientY - state.drag.y) > 5) state.dragMoved = true; state.pan = [state.drag.pan[0] + event.clientX - state.drag.x, state.drag.pan[1] + event.clientY - state.drag.y]; scaleCamera(); renderMini(); });
   $('stage').addEventListener('pointerup', event => { state.drag = null; try { $('stage').releasePointerCapture(event.pointerId); } catch {} });
+  $('stage').addEventListener('click', event => { if (state.roamMode && !state.dragMoved && !event.target.closest('button,select,input,dialog,.map-tools,.scene-top,.event-cue,.bubble-layer,.dialogue-dock')) startFreeMove(stagePointFromEvent(event)); state.dragMoved = false; });
   $('stage').addEventListener('wheel', event => { event.preventDefault(); state.zoom = clamp(state.zoom + (event.deltaY < 0 ? 0.08 : -0.08), 0.7, 2); scaleCamera(); renderMini(); }, {passive: false});
   document.addEventListener('keydown', event => {
     if ($('modal').open) { if (event.key === 'Escape') closeModal(); return; }
@@ -738,6 +838,8 @@ function initDust() {
 }
 
 function sceneLoop(timestamp) {
+  const delta = state.lastFrameTime == null ? 0 : Math.min(0.08, Math.max(0, (timestamp - state.lastFrameTime) / 1000));
+  state.lastFrameTime = timestamp;
   drawSceneCanvas(timestamp);
   if (state.transition) {
     for (const id of Object.keys(state.frame.actors)) {
@@ -747,6 +849,33 @@ function sceneLoop(timestamp) {
       const point = visualPointForActor(id, timestamp);
       target.style.left = `${point[0]}%`;
       target.style.top = `${point[1]}%`;
+    }
+  }
+  let freeMoveFinished = false;
+  for (const [id, move] of state.freeMoves) {
+    move.travel += delta * Number(style().motion?.freeMoveSpeedPxPerSecond || 170);
+    const target = $('actorLayer').querySelector(`[data-actor="${CSS.escape(id)}"]`);
+    if (target) {
+      const point = visualPointForActor(id, timestamp);
+      target.style.left = `${point[0]}%`;
+      target.style.top = `${point[1]}%`;
+      target.dataset.action = 'walk';
+      const status = target.querySelector('.actor-state');
+      if (status) status.textContent = 'walk';
+    }
+    const sample = samplePath(move.path, move.travel);
+    if (sample?.done || move.travel >= move.total) {
+      state.freeMoves.delete(id);
+      freeMoveFinished = true;
+      notify(`${actorName(id)} 抵达临时目标点`);
+    }
+  }
+  if (state.freeMoves.size || freeMoveFinished) {
+    renderMini();
+    if (freeMoveFinished) {
+      renderActors();
+      renderBubbles();
+      renderProfile();
     }
   }
   if (state.transition && timestamp >= state.transition.started + state.transition.duration) {
