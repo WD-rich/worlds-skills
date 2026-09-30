@@ -23,6 +23,12 @@
 - 分支可以比较，决定可以解释，成本和延迟可以观察；
 - 工作区可以导出、恢复、迁移和脱离服务运行。
 
+## 本轮重建原则
+
+现有实现可以整体替换，世界事实和回放记录只有在明确选择“视觉重做”时才保留。所有新视觉工作先经过 `world-production-director`：选择 `cinematic-2.5d` 或 `pixel-sim`，列出能力缺口，创建小规模 hero slice，分别通过结构、运行、交互和人工视觉评审。这样同一套 Skill 能服务不同世界，也能在未来加入新的视觉 profile，而不会把 Ashfall 的临时 CSS、占位角色或单张概念图写死为产品标准。
+
+两套 profile 的职责不同：`cinematic-2.5d` 追求截图参考中的完整场景、统一三分之四相机、地图主视野、角色上下文卡和底部时间线；`pixel-sim` 追求固定内部画布、整数缩放、瓦片导航、逐帧角色动作和紧凑 HUD。它们共享世界数据、回放、来源和审计，不共享未经声明的布局假设。
+
 ## 产品形态
 
 ### 创建页
@@ -58,6 +64,7 @@ observe → perceive → propose → validate → apply → remember → narrate
 
 | 产品能力 | Skill | 必须实现的模块 | 验收结果 |
 | --- | --- | --- | --- |
+| 生产编排和扩展 | `world-production-director` | 能力注册表、profile、阶段计划、证据矩阵 | 能指出当前能力是指导、工具、真实运行还是发布通过 |
 | 一句话世界设计 | `world-conceiver` | 结构化世界草案、规则和边界 | 相同种子生成同一份草案 |
 | 契约和迁移 | `contract-keeper` | Schema、ID、迁移、结果封装 | 旧工作区能被诊断或迁移 |
 | 模型接入 | `model-bridge` | Codex、规则、HTTP、本地 Provider、成本记录 | Provider 可替换且不改内核 |
@@ -76,6 +83,7 @@ observe → perceive → propose → validate → apply → remember → narrate
 | 可视化舞台 | `world-stage` | Phaser/Canvas 场景、React 面板、回放控制 | 40 角色下仍可操作 |
 | 作业运行 | `world-runner` | 创建、进度、取消、恢复、清理 | 失败不损坏源工作区 |
 | 质量保证 | `world-audit` | 契约、资产、回放、成本和安全检查 | CI 可以阻止坏世界进入舞台 |
+| 视觉验收 | `stage-visual-qa` | 真实截图、交互状态、profile 评审、人审记录 | 技术通过与视觉通过分开记录 |
 
 ## 分阶段交付
 

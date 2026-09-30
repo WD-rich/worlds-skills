@@ -7,12 +7,17 @@ description: Capture and diagnose replayable world-stage states for visual regre
 
 Use this skill after a stage layout, scene, asset, animation, or interaction change. It proves that the viewer looks and behaves correctly at named replay ticks; it does not replace world audit or replay validation.
 
+## Profile gate
+
+Read the production plan and the selected profile before capturing evidence. Every report must include `visualProfile` and separate `technical`, `visual`, `interaction`, and `humanReview` results. Passing DOM assertions, a copied screenshot, or a concept image never promotes a build to release evidence.
+
 ## Inputs
 
 - a built viewer directory and its local URL;
 - a world workspace and replay report;
 - target viewport/state pairs, for example `1440x900:T0`, `1440x900:T3`, `1280x800:T5`, and `390x844:T3`;
 - expected focus mode, selected actor/record, and panel state for each pair.
+- the selected `visualProfile` and its profile JSON.
 
 ## Pass
 
@@ -47,4 +52,4 @@ Use this skill after a stage layout, scene, asset, animation, or interaction cha
 
 ## Report
 
-Write a machine-readable report containing `runId`, `commit`, `viewer`, `viewports`, `states`, `screenshots`, `checks`, `errors`, and `remainingRisks`. Each screenshot entry must include the viewport, replay tick, focus mode, and artifact path. Passing DOM assertions alone does not establish visual quality; passing screenshots alone does not establish state correctness.
+Write a machine-readable report containing `runId`, `commit`, `viewer`, `visualProfile`, `contract`, `viewports`, `states`, `screenshots`, `checks`, `replayChecks`, `layoutChecks`, `assetChecks`, `technical`, `visual`, `interaction`, `humanReview`, `errors`, and `remainingRisks`. Each screenshot entry must include the viewport, replay tick, focus mode, and artifact path. Passing DOM assertions alone does not establish visual quality; passing screenshots alone does not establish state correctness.

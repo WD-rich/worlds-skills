@@ -3,13 +3,13 @@
 ## 分层
 
 ```text
-Codex Skill / CLI / API / Stage
+world-production-director
               ↓
-      contracts + audit
+      contracts + capability registry
               ↓
-          world kernel
+  world kernel / visual production / stage
               ↓
- records.ndjson + snapshots + state
+ records.ndjson + snapshots + assets
               ↑
  cognition / asset providers（可选）
 ```
@@ -17,6 +17,8 @@ Codex Skill / CLI / API / Stage
 ### Skill 层
 
 Skill 是面向用户和 Codex 的工作流入口。它负责准备输入、调用内核、组织产物和报告诊断，不直接持有世界状态。
+
+`world-production-director` 是生产编排入口。它先读取能力注册表，选择一个明确的视觉 profile，生成阶段计划和验收证据要求，再把任务交给各个专业 Skill。它不冒充美术生成器、模拟内核或运行服务；每个能力都要标出 `guided`、`tool-backed`、`runtime-proven` 或 `release-proven` 的证明等级。
 
 ### Contract 层
 
@@ -46,6 +48,8 @@ Provider 只负责提出候选内容、视觉资产或意图。默认先实现�
 
 Stage 只消费 `SpaceGraph`、`AssetRef`、快照和事件/回放帧，提供地图、角色、对话气泡、角色面板、资源面板和时间轴。它可以在无服务器模式下显示静态回放，但不直接修改运行状态。
 
+视觉生产有两个可复用 profile：`cinematic-2.5d` 适合完整场景、三分之四相机和上下文卡；`pixel-sim` 适合固定内部画布、整数缩放、瓦片和逐帧生活模拟。profile 只定义视觉与交互预算，不改变世界事实。选择 profile 后，场景、角色、UI、舞台和 QA 必须消费同一个版本化契约。
+
 依赖方向固定为：
 
 ```text
@@ -72,6 +76,8 @@ workspace/
 │   ├── records.ndjson
 │   └── snapshots/
 └── reports/
+    ├── production-*/       # 能力图、阶段计划、视觉证据
+    └── visual-qa/           # 真实截图与交互检查
 ```
 
 `records.ndjson` 只追加。`state.json` 是派生视图，必须能从初始内容和事件重新构建。恢复、分支和回放都以事件记录为依据。

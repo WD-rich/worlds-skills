@@ -36,10 +36,11 @@
 | `world-console` | 查询、对话、干预、分支和回放 | 操作结果、回放帧 |
 | `world-stage` | 地图、角色、气泡、面板和实时/回放展示 | 可交互舞台 |
 | `world-runner` | 校验配置、启动任务和报告运行状态 | 运行报告、诊断信息 |
+| `world-production-director` | 为新世界编排能力、profile、阶段出口和证据 | 能力注册表、生产计划、缺口报告 |
 
 完整覆盖矩阵见 [`docs/capability-matrix.md`](docs/capability-matrix.md)，拆分边界见 [`docs/split-design.md`](docs/split-design.md)。
 
-面向截图级体验和超越基准产品的实施计划见 [`docs/competitive-plan.md`](docs/competitive-plan.md)。
+面向截图级体验和超越基准产品的实施计划见 [`docs/competitive-plan.md`](docs/competitive-plan.md)。从需求到可验证成品的统一入口是 [`world-production-director`](skills/world-production-director/SKILL.md)，它会先区分“有规范”“有工具”“真实运行通过”和“发布验证通过”。
 
 ## 第一条可运行链路
 

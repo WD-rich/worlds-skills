@@ -1,0 +1,4 @@
+interface:
+  display_name: "World Production Director"
+  short_description: "Plan reusable worlds and verify production evidence"
+  default_prompt: "Use $world-production-director to plan a world rebuild, preserve its capabilities, and verify real visual and interaction evidence."

@@ -7,6 +7,10 @@ description: Produce validated character visual assets, transparent spritesheets
 
 Use this skill when an actor needs a visual identity for a stage or viewer.
 
+## Profile gate
+
+Read [`../world-stage/references/visual-profiles.v0.5.md`](../world-stage/references/visual-profiles.v0.5.md) before producing art. The production plan supplies one `visualProfile`; every actor asset must declare that profile, its gameplay role, frame budget, directions, actions, anchor, and fallback. A portrait or a generated concept image is never accepted as a map actor by itself.
+
 ## Produce
 
 - a stable actor-to-asset mapping;
@@ -24,16 +28,16 @@ The output is presentation data only. Location, activity, inventory, needs, rela
 
 For the v0.3 stage, include a stable anchor (`feet` for people, `center` for drones or floating objects), a readable fallback silhouette, and an action mapping for `idle`, `walk`, `talk`, and `interact`. The viewer may dim inactive actors and highlight current event participants, but it must keep the actor's accessible name and replay-derived location when an image is missing.
 
-## v0.4 gameplay/portrait contract
+## v0.5 gameplay/portrait contract
 
-Use [`../world-stage/references/visual-production-contract.v0.4.md`](../world-stage/references/visual-production-contract.v0.4.md) for the shared role and review rules. A v0.4 actor never has one ambiguous "character image" slot. Declare the role for every asset:
+Use [`../world-stage/references/visual-production-contract.v0.5.md`](../world-stage/references/visual-production-contract.v0.5.md) for the shared role and review rules. A v0.5 actor never has one ambiguous "character image" slot. Declare the role for every asset:
 
 - `gameplay`: orthographic or 3/4 map sprite with a common camera, transparent bounds, feet/center anchor, and a small ground shadow or ring;
 - `portrait`: expressive front/bust art for the context drawer, actor list, and detail dialogue;
 - `avatar`: compact list crop with the actor's accessible name;
 - `fallback`: deterministic silhouette used for offline and missing-art paths.
 
-Keep `portrait` and `gameplay` separate even when they depict the same actor. The stage must not stretch a large front-facing portrait into the map: that creates a camera and scale mismatch that makes buildings, roads, and people read as different worlds. A v0.4 human gameplay sprite targets roughly 52–76 scene px from feet to head at the default zoom; drones and props declare a category-specific height. Store the target in the animation manifest rather than relying on source bitmap dimensions.
+Keep `portrait` and `gameplay` separate even when they depict the same actor. The stage must not stretch a large front-facing portrait into the map: that creates a camera and scale mismatch that makes buildings, roads, and people read as different worlds. A `cinematic-2.5d` human gameplay sprite targets the profile's declared scene height at the default zoom; `pixel-sim` uses the profile's integer frame budget. Drones and props declare a category-specific height. Store the target in the animation manifest rather than relying on source bitmap dimensions.
 
 Every gameplay asset declares:
 
@@ -50,9 +54,9 @@ Every gameplay asset declares:
 
 `frameSize` is a layout budget, not a forced source resize. The transparent content and anchor must be reviewed against a checkerboard and a map landmark. If an actor has only a portrait, emit `artDebt: "gameplay-sprite"`, keep the portrait in its panel slot, and use the fallback silhouette on the map until a gameplay asset is approved.
 
-### v0.4 consistency checks
+### v0.5 consistency checks
 
-1. Compare at least three gameplay actors side by side at the same zoom. Their feet must sit on the same ground plane and their labels must use the same offset rule.
+1. Compare at least three gameplay actors side by side at the same profile zoom. Their feet must sit on the same ground plane and their labels must use the same offset rule.
 2. Flip or re-export directional frames consistently; do not mirror a portrait with asymmetric props unless the manifest permits it.
 3. Check idle, walk, talk, and interact at normal speed and `prefers-reduced-motion`. Reduced motion may freeze frames but cannot hide the actor or its accessible name.
 4. Verify transparent bounds, hashes, role, anchor, and fallback in the animation/asset manifest. A failed provider call leaves the actor ID and fallback in place.

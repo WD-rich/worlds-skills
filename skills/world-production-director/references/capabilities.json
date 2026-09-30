@@ -1,0 +1,486 @@
+{
+  "schemaVersion": "world-capabilities/v1",
+  "revision": 1,
+  "capabilities": [
+    {
+      "id": "world-production-director",
+      "layer": "production",
+      "implementation": "tool-backed",
+      "requires": [],
+      "inputs": [
+        "需求与参考",
+        "现有工作区"
+      ],
+      "outputs": [
+        "生产计划",
+        "能力清单",
+        "证据检查"
+      ],
+      "code": [
+        "skills/world-production-director/scripts/production.mjs"
+      ],
+      "scope": "计划生成与验收证据检查；不自动生成美术或执行各阶段",
+      "proofLevel": "tool-backed"
+    },
+    {
+      "id": "contract-keeper",
+      "layer": "foundation",
+      "implementation": "guided",
+      "requires": [],
+      "inputs": [
+        "对象版本"
+      ],
+      "outputs": [
+        "Schema",
+        "迁移约定"
+      ],
+      "code": [],
+      "scope": "有契约指导；完整共享 Schema/迁移执行器待实现",
+      "proofLevel": "guided"
+    },
+    {
+      "id": "model-bridge",
+      "layer": "foundation",
+      "implementation": "guided",
+      "requires": [
+        "contract-keeper"
+      ],
+      "inputs": [
+        "能力需求",
+        "预算"
+      ],
+      "outputs": [
+        "Provider 候选",
+        "调用记录"
+      ],
+      "code": [],
+      "scope": "有路由指导；没有通用 HTTP/图片/3D Provider 执行器",
+      "proofLevel": "guided"
+    },
+    {
+      "id": "world-conceiver",
+      "layer": "world",
+      "implementation": "guided",
+      "requires": [
+        "contract-keeper"
+      ],
+      "inputs": [
+        "创意",
+        "规则约束"
+      ],
+      "outputs": [
+        "世界种子",
+        "时间与资源规则"
+      ],
+      "code": [],
+      "scope": "Codex 按 Skill 组织内容；无独立自动生成 CLI",
+      "proofLevel": "guided"
+    },
+    {
+      "id": "atlas-builder",
+      "layer": "world",
+      "implementation": "guided",
+      "requires": [
+        "world-conceiver"
+      ],
+      "inputs": [
+        "世界种子"
+      ],
+      "outputs": [
+        "空间图",
+        "邻接",
+        "导航与交互点"
+      ],
+      "code": [],
+      "scope": "空间建模指导；检查器仅核对图连通性，尚无完整寻路/碰撞系统",
+      "proofLevel": "guided"
+    },
+    {
+      "id": "cast-forger",
+      "layer": "world",
+      "implementation": "guided",
+      "requires": [
+        "atlas-builder"
+      ],
+      "inputs": [
+        "世界规则",
+        "空间图"
+      ],
+      "outputs": [
+        "角色档案",
+        "关系",
+        "初始状态与库存"
+      ],
+      "code": [],
+      "scope": "角色创建指导；尚无独立生成与完整容量校验器",
+      "proofLevel": "guided"
+    },
+    {
+      "id": "agent-cognition",
+      "layer": "simulation",
+      "implementation": "guided",
+      "requires": [
+        "cast-forger"
+      ],
+      "inputs": [
+        "快照",
+        "角色记忆与可见信息"
+      ],
+      "outputs": [
+        "感知",
+        "行动菜单",
+        "候选意图"
+      ],
+      "code": [],
+      "scope": "有认知边界；自主决策循环尚未实现",
+      "proofLevel": "guided"
+    },
+    {
+      "id": "dialogue-director",
+      "layer": "simulation",
+      "implementation": "guided",
+      "requires": [
+        "agent-cognition"
+      ],
+      "inputs": [
+        "参与者",
+        "关系",
+        "上下文"
+      ],
+      "outputs": [
+        "会话",
+        "回合",
+        "社会影响候选"
+      ],
+      "code": [],
+      "scope": "有对话指导；viewer 展示已录对话，不能证明持续生成会话",
+      "proofLevel": "guided"
+    },
+    {
+      "id": "life-director",
+      "layer": "simulation",
+      "implementation": "guided",
+      "requires": [
+        "agent-cognition",
+        "dialogue-director"
+      ],
+      "inputs": [
+        "意图",
+        "快照",
+        "规则"
+      ],
+      "outputs": [
+        "事件",
+        "状态迁移",
+        "快照"
+      ],
+      "code": [],
+      "scope": "完整事务内核待实现；world-check 的 run 只是已有记录统计",
+      "proofLevel": "guided"
+    },
+    {
+      "id": "memory-weaver",
+      "layer": "simulation",
+      "implementation": "guided",
+      "requires": [
+        "life-director"
+      ],
+      "inputs": [
+        "已验证事件与对话"
+      ],
+      "outputs": [
+        "记忆",
+        "检索",
+        "反思",
+        "日记"
+      ],
+      "code": [],
+      "scope": "有记忆指导；viewer 只筛选已保存记忆，尚无检索/巩固服务",
+      "proofLevel": "guided"
+    },
+    {
+      "id": "timeline-keeper",
+      "layer": "simulation",
+      "implementation": "partial",
+      "requires": [
+        "life-director"
+      ],
+      "inputs": [
+        "事件",
+        "快照",
+        "分支点"
+      ],
+      "outputs": [
+        "回放帧",
+        "分支",
+        "比较"
+      ],
+      "code": [
+        "skills/world-stage/assets/stage/engine.mjs"
+      ],
+      "scope": "frameAt 可回放，viewer 分支为内存原型；持久分支/多日比较未实现",
+      "proofLevel": "tool-backed"
+    },
+    {
+      "id": "story-chronicler",
+      "layer": "simulation",
+      "implementation": "guided",
+      "requires": [
+        "memory-weaver"
+      ],
+      "inputs": [
+        "事件与对话"
+      ],
+      "outputs": [
+        "摘要",
+        "名句",
+        "戏剧评分"
+      ],
+      "code": [],
+      "scope": "可由 Codex 按来源写摘要；无持续摘要/评分执行器",
+      "proofLevel": "guided"
+    },
+    {
+      "id": "world-console",
+      "layer": "interaction",
+      "implementation": "partial",
+      "requires": [
+        "timeline-keeper"
+      ],
+      "inputs": [
+        "查询或干预命令"
+      ],
+      "outputs": [
+        "查询",
+        "沙盒",
+        "广播",
+        "移动",
+        "资源干预"
+      ],
+      "code": [
+        "skills/world-stage/assets/stage/engine.mjs",
+        "skills/world-stage/assets/stage/stage.mjs"
+      ],
+      "scope": "有本地查询、内存分支与少量干预；不是完整自由对话/持久化编辑服务",
+      "proofLevel": "tool-backed"
+    },
+    {
+      "id": "stage-ui-director",
+      "layer": "visual",
+      "implementation": "guided",
+      "requires": [
+        "world-conceiver"
+      ],
+      "inputs": [
+        "目标图",
+        "状态矩阵",
+        "视觉方案"
+      ],
+      "outputs": [
+        "美术规格",
+        "布局",
+        "组件交互规则"
+      ],
+      "code": [],
+      "scope": "有工作流；CSS 模板是原型，尚未通过目标画面的美术验收",
+      "proofLevel": "guided"
+    },
+    {
+      "id": "scene-painter",
+      "layer": "visual",
+      "implementation": "guided",
+      "requires": [
+        "atlas-builder",
+        "stage-ui-director"
+      ],
+      "inputs": [
+        "空间图",
+        "美术规格"
+      ],
+      "outputs": [
+        "场景图层",
+        "可走区域",
+        "遮挡",
+        "定位数据"
+      ],
+      "code": [],
+      "scope": "有生产指导；背景复用不等于完成地图分层/碰撞制作",
+      "proofLevel": "guided"
+    },
+    {
+      "id": "sprite-forger",
+      "layer": "visual",
+      "implementation": "guided",
+      "requires": [
+        "cast-forger",
+        "stage-ui-director"
+      ],
+      "inputs": [
+        "角色档案",
+        "相机规格"
+      ],
+      "outputs": [
+        "地图精灵",
+        "方向帧",
+        "头像",
+        "动作元数据"
+      ],
+      "code": [],
+      "scope": "有生产指导；立绘缩小和程序化起伏均不算正式地图角色/逐帧动画",
+      "proofLevel": "guided"
+    },
+    {
+      "id": "asset-pipeline-director",
+      "layer": "production",
+      "implementation": "partial",
+      "requires": [
+        "scene-painter",
+        "sprite-forger"
+      ],
+      "inputs": [
+        "brief",
+        "素材",
+        "节点配置"
+      ],
+      "outputs": [
+        "素材图",
+        "哈希",
+        "本地导出",
+        "预览"
+      ],
+      "code": [
+        "tools/asset-pipeline.mjs",
+        "skills/asset-pipeline-director/scripts/pipeline.mjs"
+      ],
+      "scope": "已实现 json.bundle/asset.copy/sprite.inspect 与结果导入；无图片/3D 生成或引擎适配执行器",
+      "proofLevel": "tool-backed"
+    },
+    {
+      "id": "world-stage",
+      "layer": "interaction",
+      "implementation": "partial",
+      "requires": [
+        "asset-pipeline-director",
+        "timeline-keeper",
+        "world-console"
+      ],
+      "inputs": [
+        "场景",
+        "素材",
+        "回放帧"
+      ],
+      "outputs": [
+        "可交互 viewer",
+        "地图",
+        "角色与事件面板"
+      ],
+      "code": [
+        "tools/build-stage.mjs",
+        "skills/world-stage/assets/stage/stage.mjs"
+      ],
+      "scope": "离线 Canvas/DOM 原型可构建；没有通过两套目标美术方案验收，live/方向帧/遮挡待实现",
+      "proofLevel": "tool-backed"
+    },
+    {
+      "id": "stage-visual-qa",
+      "layer": "quality",
+      "implementation": "guided",
+      "requires": [
+        "world-stage"
+      ],
+      "inputs": [
+        "运行版",
+        "固定状态",
+        "目标视口"
+      ],
+      "outputs": [
+        "真实截图",
+        "交互记录",
+        "人工美术评审"
+      ],
+      "code": [],
+      "scope": "有验收指导；生产检查工具核对证据完整性，不会自动判断图片美观",
+      "proofLevel": "guided"
+    },
+    {
+      "id": "world-audit",
+      "layer": "quality",
+      "implementation": "partial",
+      "requires": [
+        "contract-keeper"
+      ],
+      "inputs": [
+        "工作区与记录"
+      ],
+      "outputs": [
+        "引用/回放诊断",
+        "哈希"
+      ],
+      "code": [
+        "tools/world-check.mjs"
+      ],
+      "scope": "可核对数量、引用、连通、事件顺序与回放；全量 Schema/资源合法性/视觉验收未覆盖",
+      "proofLevel": "tool-backed"
+    },
+    {
+      "id": "world-runner",
+      "layer": "production",
+      "implementation": "guided",
+      "requires": [
+        "world-audit"
+      ],
+      "inputs": [
+        "工作区",
+        "执行模式",
+        "预算"
+      ],
+      "outputs": [
+        "作业",
+        "进度",
+        "恢复记录"
+      ],
+      "code": [],
+      "scope": "有作业规范；尚无持久调度/断点恢复服务",
+      "proofLevel": "guided"
+    }
+  ],
+  "extensions": [
+    {
+      "id": "persistent-runtime",
+      "owners": [
+        "life-director",
+        "world-runner",
+        "timeline-keeper"
+      ],
+      "status": "planned",
+      "proof": "从新意图提交事务、暂停后恢复、重启后分支仍在；不得用播放预录日志代替"
+    },
+    {
+      "id": "engine-export",
+      "owners": [
+        "asset-pipeline-director",
+        "world-stage"
+      ],
+      "status": "planned",
+      "proof": "真实目标引擎导入项目及同状态画面；拷贝 GLB 文件不算适配完成"
+    },
+    {
+      "id": "mesh-production",
+      "owners": [
+        "asset-pipeline-director",
+        "model-bridge"
+      ],
+      "status": "planned",
+      "proof": "实际 mesh、材质、拓扑/预算报告与运行展示"
+    },
+    {
+      "id": "audio-production",
+      "owners": [
+        "asset-pipeline-director",
+        "world-stage"
+      ],
+      "status": "planned",
+      "proof": "授权音频、触发映射、音量与静音交互验证"
+    }
+  ]
+}

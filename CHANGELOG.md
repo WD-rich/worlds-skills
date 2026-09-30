@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- 新增 `world-production-director`，提供能力注册表、实现证明等级、生产计划、视觉 profile 选择和证据检查；
+- 新增 `cinematic-2.5d` 与 `pixel-sim` 两套可复用视觉 profile，以及场景、角色、UI、舞台和视觉 QA 的统一生产契约；
+- 明确概念图、静态截图、占位 silhouette 和预录日志不能单独证明视觉或运行能力；
+- 将 Ashfall 的下一轮重做固定为“保留世界事实、先完成小规模 hero slice、再扩展规模”的可审查计划；
 - 补全地图、角色美术、Provider、感知、对话、时间线、剧情内容和舞台展示的 Skill 拆分。
 - 新增能力覆盖矩阵和可重复的 `tools/world-check.mjs` 审计/回放工具。
 - 明确小规模闭环先验收，再进行十倍规模扩展。

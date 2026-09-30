@@ -24,6 +24,10 @@ Make the map the primary surface. Panels explain the selected context; they do n
 - `visuals/style*.json`, `visuals/layout*.json`, and the asset/animation manifests;
 - accessibility labels and existing keyboard/mouse actions.
 
+## Profile gate
+
+Before changing components, consume the production plan from `world-production-director` and lock one visual profile. The profile decides the camera, map coverage, actor scale, panel geometry, dialogue treatment, and viewport budgets. Use [`../world-stage/references/visual-profiles.v0.5.md`](../world-stage/references/visual-profiles.v0.5.md); do not substitute a generic “polished” target. UI work may clarify replay facts, but it cannot add world entities or hide unresolved asset debt.
+
 ## Workflow
 
 1. Capture the current stage at its target desktop and narrow viewports before editing.
@@ -53,20 +57,20 @@ Make the map the primary surface. Panels explain the selected context; they do n
 - Treat `prefers-reduced-motion` as a presentation change only. Preserve state, text, and source links.
 - Keep the offline path functional. A missing visual asset gets a diagnostic and fallback, not a missing actor.
 
-## v0.4 reusable visual contract
+## v0.5 reusable visual contract
 
-For a visual rebuild, apply [`../world-stage/references/visual-production-contract.v0.4.md`](../world-stage/references/visual-production-contract.v0.4.md) before changing components. This keeps the visual direction reusable across worlds and prevents a one-off screenshot from becoming an undocumented layout fork.
+For a visual rebuild, apply [`../world-stage/references/visual-production-contract.v0.5.md`](../world-stage/references/visual-production-contract.v0.5.md) before changing components. This keeps the visual direction reusable across worlds and prevents a one-off screenshot from becoming an undocumented layout fork.
 
-The v0.4 hierarchy is:
+The v0.5 hierarchy is:
 
-1. **Map and actors:** the map occupies at least 68% of the desktop workspace and uses one orthographic/top-down 2.5D camera. Gameplay sprites are small, grounded, and readable against lanes and building mass.
+1. **Map and actors:** the selected profile's map coverage is the desktop budget (at least 78% for `cinematic-2.5d`) and uses one declared camera. Gameplay sprites are small, grounded, and readable against lanes and building mass.
 2. **Event signal:** the current event, route, dialogue bubble, or resource delta receives a restrained semantic highlight. A highlight must point to replay data; it cannot invent a state.
 3. **Context drawer:** one world, actor, or event context is open by default. Portraits belong here; a large portrait must never be placed directly on the map as a gameplay sprite.
 4. **Replay controls:** timeline and pause/step controls remain reachable when the drawer collapses or becomes a narrow-screen overlay.
 
-### v0.4 layout rules
+### v0.5 layout rules
 
-Declare map ratio, drawer max width, timeline safe area, target viewports, focus modes, and narrow-screen behavior in `visuals/layout.v0.4.json`. The drawer is at most 374 CSS px (or 30% of the workspace) on desktop. At narrow widths it overlays the map inside 92vw, uses safe-area padding, and must satisfy:
+Declare the selected profile, map ratio, drawer max width, timeline safe area, target viewports, focus modes, and narrow-screen behavior in the versioned layout manifest. For `cinematic-2.5d`, use the profile's map coverage and context width; for `pixel-sim`, preserve the internal canvas and integer scaling. At narrow widths the panel overlays the map inside the profile budget, uses safe-area padding, and must satisfy:
 
 ```js
 document.documentElement.scrollWidth <= window.innerWidth
@@ -75,7 +79,7 @@ document.body.scrollWidth <= window.innerWidth
 
 Keep labels, bubbles, route cues, and controls in flow-based or normalized containers. When the panel is collapsed, the map, space labels, actor selection, and replay controls still need a visible keyboard/mouse/touch path. Avoid introducing a second navigation system just for mobile.
 
-### v0.4 acceptance sequence
+### v0.5 acceptance sequence
 
 1. Capture the existing stage at desktop and narrow target viewports.
 2. Update the style/layout contracts and visual roles before replacing art.

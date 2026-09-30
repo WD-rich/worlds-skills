@@ -2,6 +2,19 @@
 
 每个 Skill 只负责一个可描述、可验证的工作边界。它通过共享 Contract 交换文件和对象，不读取另一个 Skill 的提示词，也不直接编辑运行状态。
 
+## 生产编排入口
+
+### `world-production-director`
+
+负责把一句需求拆成可执行的能力图、阶段计划、视觉 profile、证据矩阵和发布门槛。它先检查现有工作区和能力实现等级，再决定哪些步骤由 Codex/规则工具完成、哪些只是指导、哪些必须补执行器。它不生成世界事实、不替模拟内核写状态，也不把概念图或静态截图算成完成。
+
+视觉生产目前支持两个 profile：
+
+- `cinematic-2.5d`：完整场景为主，统一三分之四相机，地图占主视野，角色有 gameplay sprite，右侧展示上下文卡，底部连接时间线；
+- `pixel-sim`：固定内部画布、整数缩放、瓦片地图、逐帧角色动作和紧凑像素 HUD，适合生活模拟。
+
+两个 profile 共用世界事实和回放契约。只有选定 profile、补齐对应资产角色并通过真实交互截图，才能进入视觉发布门槛。
+
 ## 基础契约与 Provider
 
 ### `contract-keeper`
@@ -24,7 +37,7 @@
 
 ### `scene-painter`
 
-输入通过审计的 `SpaceGraph` 和视觉约束；输出背景图、区域覆盖层、交互元素、可行走 mask、网格和资产清单。图片生成失败时必须提供程序化占位图和诊断，不阻塞无头运行。
+输入通过审计的 `SpaceGraph`、选定的视觉 profile 和视觉约束；输出背景图、区域覆盖层、交互元素、可行走 mask、网格和资产清单。图片生成失败时必须提供程序化占位图和诊断，不阻塞无头运行。概念图只能进入 `concept` 角色，不能直接当可走地图。
 
 ### `cast-forger`
 
@@ -32,7 +45,7 @@
 
 ### `sprite-forger`
 
-输入 `ActorProfile` 和视觉约束；输出透明 spritesheet、方向/动画元数据和稳定的 `AssetRef`。它不修改角色状态，也不能因为单个图片任务失败而删除角色。
+输入 `ActorProfile`、视觉 profile 和相机约束；输出透明 spritesheet、方向/动画元数据和稳定的 `AssetRef`。它必须区分 `gameplay`、`portrait`、`avatar`、`fallback` 角色；只有 gameplay 资产可进入地图。它不修改角色状态，也不能因为单个图片任务失败而删除角色。
 
 ### `asset-pipeline-director`
 
@@ -72,7 +85,7 @@
 
 ### `world-stage`
 
-消费空间图、资产、实时事件或回放帧，提供地图、角色、气泡、资源、角色、时间线和干预面板。舞台不能直接编辑 `state.json` 或 `records.ndjson`，并且要明确 live、replay、sandbox 模式。
+消费空间图、资产、实时事件或回放帧，提供地图、角色、气泡、资源、角色、时间线和干预面板。舞台不能直接编辑 `state.json` 或 `records.ndjson`，并且要明确 live、replay、sandbox 模式。它必须声明并消费 `visualProfile`，不能把同一个通用 dashboard 伪装成两种视觉产品。
 
 ### `world-runner`
 
@@ -95,6 +108,15 @@ world-conceiver
   → memory-weaver + story-chronicler
   → timeline-keeper + world-console
   → world-stage
+```
+
+生产编排位于这条内容链的上方：
+
+```text
+world-production-director
+  → capability registry + visual profile
+  → selected specialist Skills
+  → stage-visual-qa + world-audit
 ```
 
 `atlas-builder` 和 `cast-forger` 在输入就绪后可以并行；只有通过审计的产物才能进入 Kernel。图片和前端是展示层，不得阻塞无头运行。

@@ -48,6 +48,14 @@
 - 保留 Atlas 以及其他图片/3D Provider 的适配边界，基线运行不需要第三方 Key；
 - 让 `scene-painter`、`sprite-forger`、`world-audit` 和 `stage-visual-qa` 消费同一份导出报告。
 
+## M4.7：生产总控与可替换视觉方案
+
+- 增加 `world-production-director`，从能力注册表、当前实现等级和工作区事实生成可复用生产计划；
+- 用 `cinematic-2.5d` 和 `pixel-sim` 两个明确 profile 替代“做得更漂亮”这类不可验收描述；
+- 让场景、角色、UI、舞台和视觉 QA 都声明并消费同一 profile；
+- 将证明等级拆成 `guided`、`tool-backed`、`runtime-proven`、`release-proven`，禁止把静态截图、概念图和预录日志混作运行证据；
+- 小规模 hero slice 先过真实交互和视觉人工评审，之后才允许进入 M5 的十倍规模。
+
 ## M5：规模扩展
 
 - 用同一套契约和回放工具扩展到十倍空间、角色和时间步；

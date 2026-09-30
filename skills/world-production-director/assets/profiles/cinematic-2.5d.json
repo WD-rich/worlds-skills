@@ -1,0 +1,120 @@
+{
+  "schemaVersion": "world-visual-profile/v1",
+  "revision": 1,
+  "status": "target-not-yet-produced",
+  "assetRoles": [
+    "scene-ground",
+    "scene-occlusion",
+    "navigation",
+    "gameplay-sprites",
+    "portraits",
+    "hud-layout"
+  ],
+  "viewports": [
+    [
+      1440,
+      900
+    ],
+    [
+      1280,
+      800
+    ],
+    [
+      390,
+      844
+    ]
+  ],
+  "states": [
+    "overview",
+    "movement",
+    "dialogue",
+    "exchange-decision",
+    "actor-focus",
+    "collapsed",
+    "narrow",
+    "missing-asset",
+    "reduced-motion"
+  ],
+  "visualCriteria": [
+    "composition",
+    "camera-consistency",
+    "actor-grounding",
+    "readable-motion",
+    "material-lighting",
+    "hud-hierarchy",
+    "text-fit"
+  ],
+  "interactionCriteria": [
+    "pan-zoom",
+    "select-follow",
+    "move-route",
+    "dialogue-source",
+    "play-pause-step",
+    "resource-feedback",
+    "context-drawer",
+    "keyboard-reduced-motion"
+  ],
+  "release": {
+    "placeholdersAllowed": false,
+    "conceptOnlyAllowed": false,
+    "runtimeCapturesRequired": true,
+    "technicalPassApprovesArt": false,
+    "requiredReviewers": [
+      "codex-visual-review"
+    ]
+  },
+  "id": "cinematic-2.5d",
+  "title": "完整场景式 2.5D",
+  "camera": {
+    "projection": "orthographic-three-quarter",
+    "angle": "lock-in-project-art-bible",
+    "coordinates": "one-ground-plane"
+  },
+  "layout": {
+    "composition": "full-scene-with-context-overlay",
+    "mapCoverageMin": 0.78,
+    "hudOcclusionMax": 0.22,
+    "contextMaxWidth": 320,
+    "topBarHeight": 48,
+    "replayBarHeight": 48,
+    "mobileDrawerMaxVw": 92
+  },
+  "actors": {
+    "humanSceneHeightPx": [
+      64,
+      112
+    ],
+    "directions": [
+      "south",
+      "west",
+      "east",
+      "north"
+    ],
+    "actions": {
+      "idle": 1,
+      "walk": 4,
+      "talk": 2,
+      "interact": 2
+    },
+    "portraitUse": "context-only",
+    "anchor": "feet",
+    "droneAnchor": "ground-projection-plus-altitude"
+  },
+  "art": {
+    "materials": [
+      "painted-metal",
+      "stone",
+      "cloth"
+    ],
+    "palette": "world-specific-limited-palette",
+    "lighting": "one-declared-direction",
+    "textureDensity": "quiet-ground-detailed-landmarks"
+  },
+  "avoid": [
+    "baked-interface-text",
+    "baked-live-actors",
+    "portrait-resized-as-gameplay",
+    "dashboard-card-wall",
+    "empty-placeholder-hero"
+  ]
+}
